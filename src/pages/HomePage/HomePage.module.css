@@ -1,23 +1,30 @@
 .homepage{
-    background-image:url(../../assets/home-pessoas.jpg);
+    background-color: rgb(56, 56, 56);
     background-position: top;
     background-repeat: no-repeat;
     background-size: cover;
     height: 100vh;
     width: 100vw;
-    filter: brightness(50%);
 
     display: flex;
+    flex-direction: row-r;
+    align-items: center;
+    justify-content: space-around;
+    
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
-
 .downloads{
     display: flex;
     flex-direction: row;
 }
 
-.badge{
+.badgeplay{
     width: 200px;
     /* image responsivity */
     height: 100px;
@@ -25,4 +32,20 @@
     /* image fit */
     object-fit: contain;
 
+}
+
+h1{
+    font-size: 24px;
+    font-weight: bold;
+    color: rgb(243, 243, 243);
+}
+
+.printApp{
+    width: 200px;
+    height: auto;
+    margin-top: 20px;
+}
+
+.fec{
+    color: #014195
 }
