@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
+
+*, .app{
+    font-family: 'League Spartan';
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+body, .app{
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}

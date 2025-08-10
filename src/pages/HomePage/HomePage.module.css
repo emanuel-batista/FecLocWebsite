@@ -1,0 +1,28 @@
+.homepage{
+    background-image:url(../../assets/home-pessoas.jpg);
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100vh;
+    width: 100vw;
+    filter: brightness(50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.downloads{
+    display: flex;
+    flex-direction: row;
+}
+
+.badge{
+    width: 200px;
+    /* image responsivity */
+    height: 100px;
+    margin: 0 10px;
+    /* image fit */
+    object-fit: contain;
+
+}
