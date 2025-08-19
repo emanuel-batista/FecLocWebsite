@@ -1,0 +1,30 @@
+.contatoPage {
+    background-color: rgb(56, 56, 56);
+    min-height: 100vh;
+    width: 100vw;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 50px 20px;
+    box-sizing: border-box;
+    color: rgb(243, 243, 243);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.contatoPage h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #014195;
+    text-align: center;
+}
+
+.contatoPage p {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 600px;
+    text-align: center;
+}

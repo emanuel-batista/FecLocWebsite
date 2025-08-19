@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Menu, Logo } from "assets";
 import styles from "./Navbar.module.css";
 import { useState } from "react";
@@ -7,16 +8,17 @@ function Navbar() {
 
     return (
         // Use className e o objeto 'styles' para aplicar a classe
-        <div className={styles.navbar}>
-            <a href=".navbar"><Logo /></a>
+         <div className={styles.navbar}>
+      <Link to="/"><Logo /></Link>
 
-            <ul className={menuAberto ? `${styles.itensNav} ${styles.active}` : styles.itensNav}>
-                <li className={styles.itemNav}><a href="/">Sobre</a></li>
-                <li className={styles.itemNav}><a href="/">Contato</a></li>             
-            </ul>
-            <a href="/" className={styles.ctaButton}>Baixe agora!</a> 
-            <Menu onClick={() => setMenuAberto(!menuAberto)} className={styles.menu}/>
-        </div>
+      <ul className={menuAberto ? `${styles.itensNav} ${styles.active}` : styles.itensNav}>
+        <li className={styles.itemNav}><Link to="/sobre">Sobre</Link></li>
+        <li className={styles.itemNav}><Link to="/contato">Contato</Link></li>             
+      </ul>
+
+      <Link to="/" className={styles.ctaButton}>Baixe agora!</Link> 
+      <Menu onClick={() => setMenuAberto(!menuAberto)} className={styles.menu}/>
+    </div>
     );
 }
 
