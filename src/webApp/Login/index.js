@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 // --> 1. Importações necessárias para a comunicação
-import axios from 'axios';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 import styles from "./Login.module.css"; // Seu arquivo de estilos é mantido
+import StandardButton from 'components/common/StandardButton';
+import StandardInput from 'components/common/StandardInput';
 
 // --> 2. Configuração do Firebase (CLIENTE)
 //    - Cole aqui as suas credenciais do Firebase que pode encontrar no seu projeto.
@@ -68,22 +69,8 @@ function Login() {
 
     // --> 5. Função para lidar com o cadastro (registro)
     //    - Esta função chama o seu backend Node.js.
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        if (emailError || !email || !password) {
-            alert("Por favor, preencha os campos para se cadastrar.");
-            return;
-        }
-        try {
-            const response = await axios.post('http://localhost:5000/api/signup', {
-                email: email,
-                password: password
-            });
-            alert(response.data.message);
-        } catch (error) {
-            console.error("Erro no cadastro:", error.response?.data);
-            alert("Falha no cadastro: " + (error.response?.data?.error || error.message));
-        }
+    const handleRegister = () => {
+        window.location.href = "../Register";
     };
 
 
@@ -103,18 +90,15 @@ function Login() {
                     name="email"
                 />
                 {emailError && <span style={{color: "red", marginTop: "5px"}}>{emailError}</span>}
-                <input
+                <StandardInput
                     type="password"
                     placeholder="Password"
                     required
                     value={password}
-                    // --> 7. Adicionado o onChange para o campo de senha
                     onChange={(e) => setPassword(e.target.value)}
-                    className={styles.inputPassword}
-                    name="password"
                 />
                 {/** não tem uma conta? Cadastre-se */}
-                <button type="submit" className={styles.button}>Login</button>
+                <StandardButton label="Login" type="submit" />
                 <p>Não tem uma conta? 
                     {/* --> 8. O link de cadastro agora chama a função 'handleRegister' */}
                     <a href="/register" onClick={handleRegister} className={styles.link}>

@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/Sobre/SobrePage';
 import ContatoPage from './pages/Contato/ContatoPage';
 import Login from './webApp/Login/';
+import Register from './webApp/Register';
 import HomeApp from './webApp/Home';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/contato" element={<ContatoPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<HomeApp />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Router>
   );

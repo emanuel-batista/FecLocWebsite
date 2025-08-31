@@ -42,19 +42,16 @@
     
 }
 
-.button{
-    background-color: #014195;
-    color: white;
-    border: none;
-    border-radius: 100px;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-weight: bold;
-}
+
 
 .link{
     color: #014195;
     text-decoration: none;
     font-weight: bold;
+}
+
+@media screen and (min-width: 1024px) {
+    .form{
+        width: 30vw;
+    }
 }
