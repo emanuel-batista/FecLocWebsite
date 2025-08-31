@@ -51,7 +51,7 @@ function Register() {
         }
     };
     return (
-        <MobileOnly>
+        
             <div>
                 {/* Adiciona o manipulador onSubmit ao formulário */}
                 <form className={styles.form} onSubmit={handleSubmit}>
@@ -133,7 +133,7 @@ function Register() {
                     />
                 </form>
             </div>
-        </MobileOnly>
+        
     );
 }
 
