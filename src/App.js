@@ -4,6 +4,7 @@ import Navbar from './components/Navbar/Navbar';
 import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/Sobre/SobrePage';
 import ContatoPage from './pages/Contato/ContatoPage';
+import Login from './webApp/Login/';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/sobre" element={<SobrePage />} />
         <Route path="/contato" element={<ContatoPage />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );

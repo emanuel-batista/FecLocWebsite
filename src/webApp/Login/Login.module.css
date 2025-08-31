@@ -1,0 +1,60 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #014195;
+    width: 100vw;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80vw;
+}
+
+.inputPassword{
+    border: none;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+    margin-top: 15px;
+    width: 90%;
+}
+
+.inputEmail{
+    border: none;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+    margin-top: 10px;
+    width: 90%;
+}
+
+.inputEmail::placeholder, .inputPassword::placeholder{
+    color: #999;
+    font-size: 14px;
+    
+}
+
+.button{
+    background-color: #014195;
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.link{
+    color: #014195;
+    text-decoration: none;
+    font-weight: bold;
+}
