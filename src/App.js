@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/Sobre/SobrePage';
 import ContatoPage from './pages/Contato/ContatoPage';
 import Login from './webApp/Login/';
+import HomeApp from './webApp/Home';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/sobre" element={<SobrePage />} />
         <Route path="/contato" element={<ContatoPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<HomeApp />} />
       </Routes>
     </Router>
   );

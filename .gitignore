@@ -21,3 +21,16 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Ignore Firebase and service account secrets
+*.json
+!src/**/*.json   # (optional) allow JSON files in src if needed
+
+# Ignore environment variable files
+.env
+.env.*
+
+# Ignore any other sensitive config files
+server/*.json
+secrets/
+config/*.json
