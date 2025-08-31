@@ -37,3 +37,12 @@ body{
     text-align: center;
     color: #014195;
 }
+
+.link{
+    color: #014195;
+    text-decoration: none;
+}
+
+.link:hover{
+    text-decoration: underline;
+}
