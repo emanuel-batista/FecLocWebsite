@@ -1,0 +1,12 @@
+<!-- AndroidManifest.xml -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yourapp.package">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="FecLoc"
+        android:icon="@mipmap/ic_launcher">
+        <!-- ...other application components... -->
+    </application>
+</manifest>
