@@ -1,51 +1,22 @@
-.homepage{
-    background-color: rgb(56, 56, 56);
-    background-position: top;
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100vh;
+.homepage {
+    position: relative;
     width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
 
-    display: flex;
-    flex-direction: row-r;
-    align-items: center;
-    justify-content: space-around;
+.backgroundVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 101%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(0.4);
+}
+
+@media screen and (max-width: 768px) {
     
-}
-
-.container{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-.downloads{
-    display: flex;
-    flex-direction: row;
-}
-
-.badgeplay{
-    width: 200px;
-    /* image responsivity */
-    height: 100px;
-    margin: 0 10px;
-    /* image fit */
-    object-fit: contain;
-
-}
-
-h1{
-    font-size: 24px;
-    font-weight: bold;
-    color: rgb(243, 243, 243);
-}
-
-.printApp{
-    width: 200px;
-    height: auto;
-    margin-top: 20px;
-}
-
-.fec{
-    color: #014195
+    
 }
