@@ -4,49 +4,62 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
-// --- Configuração do Firebase Admin SDK ---
-// Faça o download deste arquivo no console do Firebase
 const serviceAccount = require('../un1l0c-firebase-adminsdk-fbsvc-ab6dc5637c.json');
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://un1l0c-default-rtdb.firebaseio.com"
 });
 
 const app = express();
+app.use(cors());
+app.use(express.json());
 
-// --- Middlewares ---
-app.use(cors()); // Permite requisições de outras origens (seu frontend)
-app.use(express.json()); // Permite que o servidor entenda JSON
-
-// --- Rotas da API ---
-app.get('/', (req, res) => {
-  res.send('Backend do Login está funcionando!');
-});
-
-// Rota de Cadastro
 app.post('/api/signup', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, username, fullName, phone } = req.body;
+
+    if (!email || !password || !username || !fullName) {
+        return res.status(400).send({ error: "Campos obrigatórios em falta." });
+    }
+
+    // 1. Cria o usuário no Firebase Authentication
     const userRecord = await admin.auth().createUser({
       email: email,
       password: password,
+      displayName: username,
     });
 
-    // Opcional: Crie um documento no Firestore para o novo usuário
-    await admin.firestore().collection('users').doc(userRecord.uid).set({
-        email: userRecord.email,
-        role: 'user', // Nível de usuário padrão
-    });
+    // --- Prepara o objeto de dados do usuário ---
+    const userData = {
+        username: username,
+        fullName: fullName,
+        phone: phone,
+        email: email,
+        role: 'user',
+    };
 
-    res.status(201).send({ message: 'Usuário criado com sucesso!', uid: userRecord.uid });
+    // 2. Salva os dados no Realtime Database
+    const rtdb = admin.database();
+    const rtdbPromise = rtdb.ref('users/' + userRecord.uid).set(userData);
+
+    // 3. Salva os mesmos dados no Firestore
+    const firestore = admin.firestore();
+    const firestorePromise = firestore.collection('users').doc(userRecord.uid).set(userData);
+
+    // 4. Espera que ambas as operações de escrita terminem
+    await Promise.all([rtdbPromise, firestorePromise]);
+
+    res.status(201).send({ message: 'Usuário criado com sucesso em ambos os bancos de dados!', uid: userRecord.uid });
   } catch (error) {
     console.error("Erro no cadastro:", error);
-    res.status(400).send({ error: error.message });
+    if (error.code === 'auth/email-already-exists') {
+        return res.status(400).send({ error: 'Este email já está a ser utilizado.' });
+    }
+    res.status(400).send({ error: 'Ocorreu um erro ao criar o usuário.' });
   }
 });
 
-
-// --- Iniciar o Servidor ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

@@ -80,14 +80,12 @@ function Login() {
                   Removemos o 'method="POST"' pois a lógica é controlada pelo JavaScript.
             */}
             <form className={styles.form} onSubmit={handleLogin}>
-                <input
+                <StandardInput
                     type="email"
                     placeholder="Email"
                     required
                     value={email}
                     onChange={handleEmailChange}
-                    className={styles.inputEmail}
-                    name="email"
                 />
                 {emailError && <span style={{color: "red", marginTop: "5px"}}>{emailError}</span>}
                 <StandardInput
