@@ -1,6 +1,6 @@
 import { Logo } from "assets";
 import styles from "./HomePage.module.css";
-import { ArrowIcon } from "@mui/icons-material"
+import { ArrowOutward } from "@mui/icons-material"
 
 
 
@@ -17,7 +17,7 @@ function HomePage() {
             <div className={styles.content}>
                 <Logo />
                 <span>O aplicativo de localização da FEC!</span>
-                <a href="/login" className={styles.CTA}>USE AGORA TOTALMENTE ONLINE <ArrowIcon /></a>
+                <a href="/login" className={styles.CTA}>USE AGORA TOTALMENTE ONLINE <ArrowOutward /></a>
             </div>
 
         </div>
