@@ -1,14 +1,13 @@
-// webApp/Login/index.js (Versão Corrigida)
+// webApp/Login/index.js (Versão Atualizada)
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // --> Importe Link também
-
-// --> Importe as funções necessárias do Firebase
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   getAuth,
   signInWithEmailAndPassword,
   setPersistence,
-  browserLocalPersistence
+  browserLocalPersistence,
+  onAuthStateChanged
 } from 'firebase/auth';
 
 import styles from "./Login.module.css";
@@ -23,7 +22,24 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState("");
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const navigate = useNavigate();
+
+    // --> Verifica se o usuário já está autenticado
+    useEffect(() => {
+        const auth = getAuth();
+        
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setIsCheckingAuth(false);
+            if (user) {
+                // Usuário já está logado, redireciona para Home
+                navigate("/home");
+            }
+        });
+
+        // Cleanup function
+        return () => unsubscribe();
+    }, [navigate]);
 
     const handleEmailChange = (e) => {
         const newEmail = e.target.value;
@@ -48,15 +64,23 @@ function Login() {
             await setPersistence(auth, browserLocalPersistence);
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             alert(`Login bem-sucedido para ${userCredential.user.email}`);
-
-            // --> CORREÇÃO: Use navigate corretamente
-            navigate("/home"); // Note: "/home" em vez de "/Home" (verifique a rota exata)
-
+            navigate("/home");
         } catch (error) {
             console.error("Erro no login:", error);
             alert("Falha no login: Verifique seu email e senha.");
         }
     };
+
+    // Mostra um loading enquanto verifica a autenticação
+    if (isCheckingAuth) {
+        return (
+            <div id={styles.loginContainer}>
+                <div className={styles.loading}>
+                    <p>Verificando autenticação...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div id={styles.loginContainer}>
@@ -78,7 +102,6 @@ function Login() {
                 />
                 <StandardButton label="Login" type="submit" />
                 <p>Não tem uma conta?
-                    {/* CORREÇÃO: Use Link em vez de <a> com onClick */}
                     <Link to="/register" className={styles.link}>
                         Cadastre-se
                     </Link>
