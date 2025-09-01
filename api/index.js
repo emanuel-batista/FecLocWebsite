@@ -14,14 +14,21 @@ if (!admin.apps.length) {
 }
 
 const app = express();
-app.use(cors({
+
+// --- CORREÇÃO DE CORS AQUI ---
+// Configura o CORS para permitir pedidos apenas do seu domínio de frontend.
+const corsOptions = {
   origin: 'https://uniloc.vercel.app'
-}));
+};
+app.use(cors(corsOptions));
+// A linha acima substitui o app.use(cors()) simples.
+
 app.use(express.json());
 
+
 app.post('/api/signup', async (req, res) => {
+  // A sua lógica de cadastro, que está correta, continua aqui...
   try {
-    // ... (toda a sua lógica de cadastro que já está correta)
     const { email, password, username, fullName, phone } = req.body;
 
     if (!email || !password || !username || !fullName) {
@@ -52,11 +59,15 @@ app.post('/api/signup', async (req, res) => {
 
     res.status(201).send({ message: 'Usuário criado com sucesso!', uid: userRecord.uid });
   } catch (error) {
-    // ... (lógica de tratamento de erros)
+    console.error("Erro no cadastro:", error);
+    if (error.code === 'auth/email-already-exists') {
+      return res.status(400).send({ error: 'Este email já está a ser utilizado.' });
+    }
+    res.status(400).send({ error: 'Ocorreu um erro ao criar o usuário.' });
   }
 });
 
-// Adicione esta rota de diagnóstico
+// Rota de diagnóstico
 app.get('/api', (req, res) => {
   res.status(200).send('A API está a funcionar!');
 });
