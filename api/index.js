@@ -1,9 +1,10 @@
-// api/index.js
+require('dotenv').config(); // <-- ADICIONE ESTA LINHA NO TOPO DE TUDO
 
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
+// Agora, process.env.FIREBASE_SERVICE_ACCOUNT_JSON terá o valor do seu ficheiro .env
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
 if (!admin.apps.length) {

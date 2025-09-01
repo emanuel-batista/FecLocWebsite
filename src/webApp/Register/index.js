@@ -5,7 +5,8 @@ import StandardButton from "components/common/StandardButton";
 import StandardInput from "components/common/StandardInput";
 import H2 from "components/common/text/H2";
 import styles from "./Register.module.css";
-
+import SecondaryButton from "components/common/SecondaryButton";
+import ErrorAlert from "components/common/alerts/ErrorAlert";
 
 function Register() {
     //se o regulamento não for aceito, desabilita o botão de submit
@@ -23,7 +24,7 @@ function Register() {
         e.preventDefault();
 
         if (!isRegulamentoAceito) {
-            alert("Você precisa ler e aceitar o regulamento para continuar.");
+            <ErrorAlert message="Você deve aceitar o regulamento para se cadastrar." />;
             return;
         }
 
@@ -39,7 +40,7 @@ function Register() {
             // A URL da API agora deve vir de uma variável de ambiente
             const apiUrl = process.env.REACT_APP_API_URL || 'https://uniloc.vercel.app'; // Use a sua URL da Vercel
             const response = await axios.post(`${apiUrl}/api/signup`, userData);
-            alert(response.data.message);
+            <ErrorAlert message={response.data.message} />;
         } catch (error) {
             // --- CORREÇÃO PRINCIPAL AQUI ---
 
@@ -61,12 +62,13 @@ function Register() {
             }
 
             console.error("Erro no cadastro:", errorMessage);
-            alert("Falha no cadastro: " + errorMessage);
+            <ErrorAlert message={"Falha no cadastro: " + errorMessage} />;
         }
     };
     return (
-
+            
         <div>
+            <ErrorAlert message={"Falha no cadastro: "} />
             {/* Adiciona o manipulador onSubmit ao formulário */}
             <form className={styles.form} onSubmit={handleSubmit}>
                 <H2>Cadastre-se e concorra à uma cesta de chocolate da Cacau Show*!🍫</H2>
@@ -144,6 +146,14 @@ function Register() {
                     label="Registre-se"
                     type="submit"
                     disabled={!isRegulamentoAceito}
+                />
+                <SecondaryButton
+                    label="Já tem uma conta? Faça login!"
+                    onClick={() => {
+                        // Lógica para redirecionar para a página de login
+                        window.location.href = "/login";
+                    }}
+                    disabled={false}
                 />
             </form>
         </div>

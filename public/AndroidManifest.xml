@@ -1,12 +1,16 @@
-<!-- AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yourapp.package">
+    package="com.uniloc.package">
 
+    <!-- Permission to allow internet access -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="FecLoc"
-        android:icon="@mipmap/ic_launcher">
-        <!-- ...other application components... -->
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:allowBackup="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <!-- ...other application components like activities... -->
     </application>
 </manifest>
