@@ -1,9 +1,9 @@
 // webApp/Login/index.js (Versão Corrigida)
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // --> 1. Importe o useNavigate
+import { useNavigate, Link } from 'react-router-dom'; // --> Importe Link também
 
-// --> 2. Importe as funções necessárias do Firebase
+// --> Importe as funções necessárias do Firebase
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -15,9 +15,6 @@ import styles from "./Login.module.css";
 import StandardButton from 'components/common/StandardButton';
 import StandardInput from 'components/common/StandardInput';
 
-// --> 3. REMOVA a configuração e inicialização do Firebase daqui
-// A inicialização já é feita no App.js
-
 function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -26,7 +23,7 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState("");
-    const navigate = useNavigate(); // --> 4. Inicialize o hook de navegação
+    const navigate = useNavigate();
 
     const handleEmailChange = (e) => {
         const newEmail = e.target.value;
@@ -45,27 +42,20 @@ function Login() {
             return;
         }
 
-        const auth = getAuth(); // Obtém a instância do auth que já foi inicializada no App.js
+        const auth = getAuth();
 
         try {
-            // --> 5. ANTES do login, defina a persistência
             await setPersistence(auth, browserLocalPersistence);
-
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             alert(`Login bem-sucedido para ${userCredential.user.email}`);
 
-            // --> 6. Use o navigate para redirecionar sem recarregar a página
-            navigate("/home");
+            // --> CORREÇÃO: Use navigate corretamente
+            navigate("/home"); // Note: "/home" em vez de "/Home" (verifique a rota exata)
 
         } catch (error) {
             console.error("Erro no login:", error);
             alert("Falha no login: Verifique seu email e senha.");
         }
-    };
-
-    const handleRegister = (e) => {
-        e.preventDefault(); // Previne o comportamento padrão do link
-        navigate("/register"); // Navega para a página de registo
     };
 
     return (
@@ -88,9 +78,10 @@ function Login() {
                 />
                 <StandardButton label="Login" type="submit" />
                 <p>Não tem uma conta?
-                    <a href="/register" onClick={handleRegister} className={styles.link}>
+                    {/* CORREÇÃO: Use Link em vez de <a> com onClick */}
+                    <Link to="/register" className={styles.link}>
                         Cadastre-se
-                    </a>
+                    </Link>
                 </p>
             </form>
         </div>
