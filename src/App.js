@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // --- IMPORTAÇÕES DO FIREBASE ---
-import { initializeApp } from 'firebase/app';
+// --> Adicionamos getApps e getApp para uma inicialização segura
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
@@ -26,8 +27,10 @@ const firebaseConfig = {
     appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
-// Inicializa o Firebase e o Firestore
-const app = initializeApp(firebaseConfig);
+// --- INICIALIZAÇÃO SEGURA DO FIREBASE ---
+// Esta lógica garante que o Firebase só é inicializado uma única vez.
+// Se nenhuma aplicação existir, ele cria uma. Se já existir, ele usa a que já foi criada.
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
