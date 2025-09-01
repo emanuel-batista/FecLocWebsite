@@ -6,7 +6,6 @@ const admin = require('firebase-admin');
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
-// Garante que a app Firebase só é inicializada uma vez
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -20,8 +19,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// --- CORREÇÃO AQUI ---
-// A rota agora é apenas '/signup' porque a Vercel já trata do '/api'
 app.post('/signup', async (req, res) => {
   try {
     const { email, password, username, fullName, phone } = req.body;
