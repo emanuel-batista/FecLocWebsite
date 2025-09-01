@@ -4,25 +4,25 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
-// As suas credenciais são carregadas de forma segura das Variáveis de Ambiente
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://un1l0c-default-rtdb.firebaseio.com"
-});
+// Garante que a app Firebase só é inicializada uma vez
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://un1l0c-default-rtdb.firebaseio.com"
+  });
+}
 
 const app = express();
-
-// Configure o CORS para permitir pedidos do seu domínio na Vercel
 app.use(cors({
-  origin: 'https://uniloc.vercel.app' // Substitua pela URL do seu frontend
+  origin: 'https://uniloc.vercel.app'
 }));
-
 app.use(express.json());
 
-// A sua rota /api/signup está correta
-app.post('/api/signup', async (req, res) => {
+// --- CORREÇÃO AQUI ---
+// A rota agora é apenas '/signup' porque a Vercel já trata do '/api'
+app.post('/signup', async (req, res) => {
   try {
     const { email, password, username, fullName, phone } = req.body;
 
@@ -62,5 +62,4 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
-// A aplicação Express é exportada para a Vercel gerir
 module.exports = app;
