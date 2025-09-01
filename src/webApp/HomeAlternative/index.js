@@ -26,10 +26,13 @@ function HomeAlternative() {
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
-                
+
             </div>
             {/* logout button */}
-            <button className={styles.logoutButton}>Logout</button>
+            // This is the corrected button
+            <button onClick={handleLogout} className={styles.logoutButton}>
+                Logout
+            </button>
         </div>
     );
 }
