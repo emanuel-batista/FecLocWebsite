@@ -37,7 +37,7 @@ function Register() {
 
         try {
             // A URL da API agora deve vir de uma variável de ambiente
-            const apiUrl = process.env.REACT_APP_API_URL || 'https://seu-site.vercel.app'; // Use a sua URL da Vercel
+            const apiUrl = process.env.REACT_APP_API_URL || 'https://uniloc.vercel.app'; // Use a sua URL da Vercel
             const response = await axios.post(`${apiUrl}/api/signup`, userData);
             alert(response.data.message);
         } catch (error) {
