@@ -1,0 +1,16 @@
+.container{
+    width: 80vw;
+    height: 30vh;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+.infos{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 45%;
+    margin-bottom: 10px;
+}
