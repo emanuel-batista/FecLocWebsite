@@ -6,7 +6,7 @@ import SobrePage from './pages/Sobre/SobrePage';
 import ContatoPage from './pages/Contato/ContatoPage';
 import Login from './webApp/Login/';
 import Register from './webApp/Register';
-import HomeApp from './webApp/Home';
+import HomeApp from './webApp/HomeAlternative';
 
 function App() {
   return (
