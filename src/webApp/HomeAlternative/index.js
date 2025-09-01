@@ -6,7 +6,7 @@ function HomeAlternative(){
     return(
         <div className={styles.hAlternative}>
             <h2>Unidades</h2>
-            <PlaceCard backgroundImage={'../assets/cardnite.jpg'} standName={'Nite'} />
+            <PlaceCard backgroundImage={'../../assets/cardnite.jpg'} standName={'Nite'} />
         </div>
     );
 }
