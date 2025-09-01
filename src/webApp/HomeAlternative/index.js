@@ -17,7 +17,7 @@ function HomeAlternative() {
     };
 
     return (
-        <div>
+        <div id={styles.hAlternativeContainer}>
             <SearchBar />
             <h2 className={styles.h2}>Unidades</h2>
             <div className={styles.hAlternative}>
