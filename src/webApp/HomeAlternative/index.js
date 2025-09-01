@@ -3,6 +3,7 @@ import styles from "./hAlternative.module.css";
 import cardniteImg from "./cardnite.jpg"; // <-- Import the image
 import SearchBar from "components/HomeAlternative/SearchBar";
 import { Alert } from "@mui/material";
+import { getAuth, signOut } from "firebase/auth";
 
 function HomeAlternative() {
     const auth = getAuth();
