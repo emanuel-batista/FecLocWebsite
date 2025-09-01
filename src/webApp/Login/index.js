@@ -69,7 +69,7 @@ function Login() {
     };
 
     return (
-        <div className={styles.container}>
+        <div id={styles.loginContainer}>
             <form className={styles.form} onSubmit={handleLogin}>
                 <StandardInput
                     type="email"
