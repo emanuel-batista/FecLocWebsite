@@ -15,7 +15,7 @@ function PlaceCard({ backgroundImage, standName }) {
   return (
     <div className={styles.container} style={cardStyle}>
       <div className={styles.infos}>
-        <h2 className="h2">{standName}</h2>
+        <h2 className={styles.h2}>{standName}</h2>
         <StandardButton label={"VEJA QUAIS STANDS ESTÃO AQUI!"} type={"#"} />
       </div>
     </div>
