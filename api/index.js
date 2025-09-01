@@ -16,7 +16,7 @@ const app = express();
 
 // Configure o CORS para permitir pedidos do seu domínio na Vercel
 app.use(cors({
-  origin: 'https://seu-site.vercel.app' // Substitua pela URL do seu frontend
+  origin: 'https://uniloc.vercel.app' // Substitua pela URL do seu frontend
 }));
 
 app.use(express.json());
