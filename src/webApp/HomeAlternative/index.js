@@ -29,7 +29,6 @@ function HomeAlternative() {
 
             </div>
             {/* logout button */}
-            // This is the corrected button
             <button onClick={handleLogout} className={styles.logoutButton}>
                 Logout
             </button>
