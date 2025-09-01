@@ -39,101 +39,100 @@ function Register() {
             password,
         };
 
+         const apiUrl = process.env.REACT_APP_API_URL;
+
         try {
-            // Envia os dados para a rota /api/signup do seu backend
-            const response = await axios.post('http://localhost:5000/api/signup', userData);
-            alert(response.data.message); // Exibe a mensagem de sucesso
-            // Aqui você pode redirecionar o usuário para a página de login
+            const response = await axios.post(`${apiUrl}/api/signup`, userData);
+            alert(response.data.message);
         } catch (error) {
-            // Exibe a mensagem de erro retornada pelo backend
-            console.error("Erro no cadastro:", error.response?.data);
+            console.error("Erro no cadastro:", error);
             alert("Falha no cadastro: " + (error.response?.data?.error || error.message));
         }
     };
     return (
-        
-            <div>
-                {/* Adiciona o manipulador onSubmit ao formulário */}
-                <form className={styles.form} onSubmit={handleSubmit}>
-                    <H2>Cadastre-se e concorra à uma cesta de chocolate da Cacau Show*!🍫</H2>
-                    <StandardInput
-                        type="text"
-                        placeholder="Username"
-                        value={username} // Conecta o valor ao estado
-                        onChange={(e) => setUsername(e.target.value)} // Atualiza o estado
-                        required
-                    />
-                    <StandardInput
-                        type="text"
-                        placeholder="Nome completo"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
-                    />
-                    <StandardInput
-                        type="text"
-                        placeholder="Número de celular para contato"
-                        value={phone}
-                        onChange={(e) => {
-                            const value = e.target.value
-                                .replace(/\D/g, "")
-                                .replace(/^(\d{2})(\d)/, "($1) $2")
-                                .replace(/(\d{5})(\d)/, "$1-$2");
-                            setPhone(value); // Atualiza o estado com o valor mascarado
-                        }}
-                        maxLength="15" // Limita o tamanho do campo
-                        required
-                    />
-                    <StandardInput
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <StandardInput
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
 
-                    {/* Checkbox e link para o regulamento */}
-                    <div className={styles.regulamentoContainer}>
-                        <input
-                            type="checkbox"
-                            id="regulamento"
-                            // --- LÓGICA ADICIONADA ---
-                            // Controla o estado de "marcado" e atualiza o estado quando clicado
-                            checked={isRegulamentoAceito}
-                            onChange={(e) => setIsRegulamentoAceito(e.target.checked)}
-                            required
-                        />
-                        <label htmlFor="regulamento" className={styles.regulamentoLabel}>
-                            Eu li e concordo com o regulamento do concurso.
-                        </label>
-                        <a
-                            href="/regulamento.pdf"
-                            download
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: "#014195", textDecoration: "underline" }}
-                        >
-                            Clique para Regulamento
-                        </a>
-                    </div>
+        <div>
+            {/* Adiciona o manipulador onSubmit ao formulário */}
+            <form className={styles.form} onSubmit={handleSubmit}>
+                <H2>Cadastre-se e concorra à uma cesta de chocolate da Cacau Show*!🍫</H2>
+                <StandardInput
+                    type="text"
+                    placeholder="Username"
+                    value={username} // Conecta o valor ao estado
+                    onChange={(e) => setUsername(e.target.value)} // Atualiza o estado
+                    required
+                />
+                <StandardInput
+                    type="text"
+                    placeholder="Nome completo"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                />
+                <StandardInput
+                    type="text"
+                    placeholder="Número de celular para contato"
+                    value={phone}
+                    onChange={(e) => {
+                        const value = e.target.value
+                            .replace(/\D/g, "")
+                            .replace(/^(\d{2})(\d)/, "($1) $2")
+                            .replace(/(\d{5})(\d)/, "$1-$2");
+                        setPhone(value); // Atualiza o estado com o valor mascarado
+                    }}
+                    maxLength="15" // Limita o tamanho do campo
+                    required
+                />
+                <StandardInput
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <StandardInput
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
 
-                    {/* --- LÓGICA ADICIONADA --- */}
-                    {/* O botão é desabilitado se isRegulamentoAceito for falso */}
-                    <StandardButton
-                        label="Registre-se"
-                        type="submit"
-                        disabled={!isRegulamentoAceito}
+                {/* Checkbox e link para o regulamento */}
+                <div className={styles.regulamentoContainer}>
+                    <input
+                        type="checkbox"
+                        id="regulamento"
+                        // --- LÓGICA ADICIONADA ---
+                        // Controla o estado de "marcado" e atualiza o estado quando clicado
+                        checked={isRegulamentoAceito}
+                        onChange={(e) => setIsRegulamentoAceito(e.target.checked)}
+                        required
                     />
-                </form>
-            </div>
-        
+                    <label htmlFor="regulamento" className={styles.regulamentoLabel}>
+                        Eu li e concordo com o regulamento do concurso.
+                    </label>
+                    <a
+                        href="/regulamento.pdf"
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "#014195", textDecoration: "underline" }}
+                    >
+                        Clique para Regulamento
+                    </a>
+                </div>
+
+                {/* --- LÓGICA ADICIONADA --- */}
+                {/* O botão é desabilitado se isRegulamentoAceito for falso */}
+                <StandardButton
+                    label="Registre-se"
+                    type="submit"
+                    disabled={!isRegulamentoAceito}
+                />
+            </form>
+        </div>
+
     );
 }
 
