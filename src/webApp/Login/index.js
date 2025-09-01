@@ -101,7 +101,7 @@ function Login() {
                         variant="h6" 
                         component="div" 
                         sx={{
-                            color: 'text.secondary',
+                            color: 'text.primary',
                             fontWeight: 300
                         }}
                     >
