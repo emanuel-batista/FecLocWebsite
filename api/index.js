@@ -19,8 +19,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.post('/signup', async (req, res) => {
+app.post('/api/signup', async (req, res) => {
   try {
+    // ... (toda a sua lógica de cadastro que já está correta)
     const { email, password, username, fullName, phone } = req.body;
 
     if (!email || !password || !username || !fullName) {
@@ -51,12 +52,13 @@ app.post('/signup', async (req, res) => {
 
     res.status(201).send({ message: 'Usuário criado com sucesso!', uid: userRecord.uid });
   } catch (error) {
-    console.error("Erro no cadastro:", error);
-    if (error.code === 'auth/email-already-exists') {
-      return res.status(400).send({ error: 'Este email já está a ser utilizado.' });
-    }
-    res.status(400).send({ error: 'Ocorreu um erro ao criar o usuário.' });
+    // ... (lógica de tratamento de erros)
   }
+});
+
+// Adicione esta rota de diagnóstico
+app.get('/api', (req, res) => {
+  res.status(200).send('A API está a funcionar!');
 });
 
 module.exports = app;
