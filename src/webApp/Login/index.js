@@ -1,4 +1,4 @@
-// webApp/Login/index.js (Versão Atualizada)
+// webApp/Login/index.js (Versão Atualizada com MUI)
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -9,6 +9,11 @@ import {
   browserLocalPersistence,
   onAuthStateChanged
 } from 'firebase/auth';
+
+// Importações do Material-UI
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 import styles from "./Login.module.css";
 import StandardButton from 'components/common/StandardButton';
@@ -71,13 +76,38 @@ function Login() {
         }
     };
 
-    // Mostra um loading enquanto verifica a autenticação
+    // Mostra uma animação de loading enquanto verifica a autenticação
     if (isCheckingAuth) {
         return (
             <div id={styles.loginContainer}>
-                <div className={styles.loading}>
-                    <p>Verificando autenticação...</p>
-                </div>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                        gap: 2
+                    }}
+                >
+                    <CircularProgress 
+                        size={60} 
+                        thickness={4}
+                        sx={{
+                            color: 'primary.main'
+                        }}
+                    />
+                    <Typography 
+                        variant="h6" 
+                        component="div" 
+                        sx={{
+                            color: 'text.secondary',
+                            fontWeight: 300
+                        }}
+                    >
+                        Verificando autenticação...
+                    </Typography>
+                </Box>
             </div>
         );
     }
