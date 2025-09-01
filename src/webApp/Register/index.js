@@ -5,7 +5,6 @@ import StandardButton from "components/common/StandardButton";
 import StandardInput from "components/common/StandardInput";
 import H2 from "components/common/text/H2";
 import styles from "./Register.module.css";
-import MobileOnly from "webApp/MobileOnly";
 
 
 function Register() {
@@ -21,16 +20,13 @@ function Register() {
 
     // Função para lidar com o envio do formulário
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Previne o recarregamento da página
+        e.preventDefault();
 
-        // --- VERIFICAÇÃO ADICIONADA ---
-        // Se o regulamento não foi aceite, exibe um alerta e interrompe a função.
         if (!isRegulamentoAceito) {
             alert("Você precisa ler e aceitar o regulamento para continuar.");
-            return; // Impede o envio dos dados
+            return;
         }
 
-        // Monta o objeto com os dados do usuário
         const userData = {
             username,
             fullName,
@@ -39,14 +35,33 @@ function Register() {
             password,
         };
 
-         const apiUrl = process.env.REACT_APP_API_URL;
-
         try {
+            // A URL da API agora deve vir de uma variável de ambiente
+            const apiUrl = process.env.REACT_APP_API_URL || 'https://seu-site.vercel.app'; // Use a sua URL da Vercel
             const response = await axios.post(`${apiUrl}/api/signup`, userData);
             alert(response.data.message);
         } catch (error) {
-            console.error("Erro no cadastro:", error);
-            alert("Falha no cadastro: " + (error.response?.data?.error || error.message));
+            // --- CORREÇÃO PRINCIPAL AQUI ---
+
+            // 1. Mostra o objeto de erro completo no console para diagnóstico
+            console.error("DEBUG: Objeto de erro completo:", error);
+
+            // 2. Tenta extrair uma mensagem de erro mais clara para o utilizador
+            let errorMessage = "Ocorreu um erro de rede. Verifique a sua conexão e tente novamente.";
+            if (error.response && error.response.data) {
+                // Se a resposta do backend tiver uma mensagem de erro específica
+                if (typeof error.response.data.error === 'string') {
+                    errorMessage = error.response.data.error;
+                } else {
+                    // Se a resposta for um objeto, converte para texto para podermos vê-lo
+                    errorMessage = JSON.stringify(error.response.data);
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
+            console.error("Erro no cadastro:", errorMessage);
+            alert("Falha no cadastro: " + errorMessage);
         }
     };
     return (
