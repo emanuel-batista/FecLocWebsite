@@ -13,44 +13,47 @@ if (!admin.apps.length) {
 }
 
 export default async function handler(request, response) {
-  // --- INÍCIO DA CORREÇÃO DE CORS ---
-  // Define os headers de permissão para todas as respostas
-  response.setHeader('Access-Control-Allow-Origin', '*'); // Em produção, restrinja a 'https://uniloc.vercel.app'
+  // --- PASSO 1: LIDAR COM O CORS PRIMEIRO ---
+  // Define os headers de permissão para o navegador
+  response.setHeader('Access-Control-Allow-Origin', '*'); // Para produção, troque '*' por 'https://uniloc.vercel.app'
   response.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
 
-  // Responde imediatamente à requisição de preparação (preflight)
+  // Se a requisição for a verificação 'OPTIONS' do navegador, responda OK e pare aqui.
   if (request.method === 'OPTIONS') {
     return response.status(200).end();
   }
-  // --- FIM DA CORREÇÃO DE CORS ---
 
-  // Apenas admins podem executar esta função
-  const idToken = request.headers.authorization?.split('Bearer ')[1];
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    if (decodedToken.admin !== true) {
-      return response.status(403).json({ error: 'Unauthorized' });
-    }
-  } catch (error) {
-    return response.status(401).json({ error: 'Invalid token' });
-  }
+  // --- PASSO 2: A LÓGICA DA SUA API COMEÇA AQUI ---
+  // Agora que o CORS foi resolvido, prossiga com a sua lógica normal.
 
-  // Lógica principal
+  // Verificação de segurança: apenas POST é permitido
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  // Verificação de segurança: apenas admins podem executar
+  try {
+    const idToken = request.headers.authorization?.split('Bearer ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    if (decodedToken.admin !== true) {
+      return response.status(403).json({ error: 'Acesso não autorizado' });
+    }
+  } catch (error) {
+    return response.status(401).json({ error: 'Token inválido ou expirado' });
+  }
+
+  // Lógica principal para desativar o usuário
   const { uid, disabled } = request.body;
   if (!uid || typeof disabled !== 'boolean') {
-    return response.status(400).json({ error: 'UID and disabled status are required' });
+    return response.status(400).json({ error: 'UID e status "disabled" são obrigatórios' });
   }
 
   try {
     await admin.auth().updateUser(uid, { disabled: disabled });
-    return response.status(200).json({ message: `User status updated successfully.` });
+    return response.status(200).json({ message: 'Status do usuário atualizado com sucesso.' });
   } catch (error) {
-    console.error('Error updating user status:', error);
+    console.error('Erro ao atualizar status do usuário:', error);
     return response.status(500).json({ error: error.message });
   }
 }
