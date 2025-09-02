@@ -1,7 +1,7 @@
 // src/webApp/AdminPanel/Unidades/index.js
 
 import React, { useState, useEffect } from 'react';
-import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, orderBy, query } from 'firebase/firestore';
 import {
   Container,
   Typography,
@@ -18,22 +18,31 @@ function AdminUnidades() {
   const [nome, setNome] = useState('');
   const [fotoUrl, setFotoUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [listLoading, setListLoading] = useState(true);
   const [unidades, setUnidades] = useState([]);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
 
   const db = getFirestore();
 
-  // Função para buscar as unidades já cadastradas
-  const fetchUnidades = async () => {
-    const querySnapshot = await getDocs(collection(db, "unidades"));
-    const unidadesList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setUnidades(unidadesList);
-  };
-
-  // Busca as unidades quando o componente é montado
   useEffect(() => {
+    // A função de busca foi movida para dentro do useEffect
+    const fetchUnidades = async () => {
+      setListLoading(true);
+      try {
+        const q = query(collection(db, "unidades"), orderBy("criadoEm", "desc"));
+        const querySnapshot = await getDocs(q);
+        const unidadesList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setUnidades(unidadesList);
+      } catch (error) {
+        console.error("Erro ao buscar unidades:", error);
+        showAlert('Erro ao carregar a lista de unidades.', 'error');
+      } finally {
+        setListLoading(false);
+      }
+    };
+
     fetchUnidades();
-  }, []);
+  }, [db]); // Adicionamos 'db' como dependência, pois é usado no efeito
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,7 +61,9 @@ function AdminUnidades() {
       showAlert('Unidade cadastrada com sucesso!', 'success');
       setNome('');
       setFotoUrl('');
-      fetchUnidades(); // Atualiza a lista após o cadastro
+      // Para atualizar a lista, podemos simplesmente recarregar a página
+      // ou implementar uma lógica de state mais complexa. Recarregar é mais simples.
+      window.location.reload(); 
     } catch (error) {
       console.error("Erro ao cadastrar unidade: ", error);
       showAlert('Erro ao cadastrar unidade.', 'error');
@@ -100,13 +111,17 @@ function AdminUnidades() {
       </Paper>
 
       <Typography variant="h6" gutterBottom>Unidades Cadastradas</Typography>
-      {unidades.map(unidade => (
-        <Paper key={unidade.id} sx={{ p: 2, mb: 1, display: 'flex', alignItems: 'center' }}>
-          <img src={unidade.fotoUrl} alt={unidade.nome} width="80" height="80" style={{ marginRight: '16px', borderRadius: '4px' }} />
-          <Typography variant="body1">{unidade.nome}</Typography>
-        </Paper>
-      ))}
-
+      {listLoading ? (
+        <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+      ) : (
+        unidades.map(unidade => (
+          <Paper key={unidade.id} sx={{ p: 2, mb: 1, display: 'flex', alignItems: 'center' }}>
+            <img src={unidade.fotoUrl} alt={unidade.nome} width="80" height="80" style={{ marginRight: '16px', borderRadius: '4px', objectFit: 'cover' }} />
+            <Typography variant="body1">{unidade.nome}</Typography>
+          </Paper>
+        ))
+      )}
+      
       <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert}>
         <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
           {alert.message}
