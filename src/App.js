@@ -23,10 +23,10 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   // App.js - Ajuste no useEffect
+  // App.js - Mantenha o useEffect simples
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Apenas atualiza o estado, NÃO redireciona automaticamente
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {

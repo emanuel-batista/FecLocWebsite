@@ -1,5 +1,5 @@
-// Login.js - Versão Final Corrigida
-import React, { useState, useEffect } from 'react';
+// Login.js - Versão Corrigida
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { 
@@ -9,9 +9,6 @@ import {
 } from 'firebase/auth';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import styles from "./Login.module.css";
 import StandardButton from 'components/common/StandardButton';
 import StandardInput from 'components/common/StandardInput';
@@ -26,31 +23,7 @@ function Login() {
   const [emailError, setEmailError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
-  const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
-
-  // Verifica cooldown periodicamente
-  useEffect(() => {
-    const checkCooldown = () => {
-      const lastLogoutTime = localStorage.getItem('lastLogoutTime');
-      if (lastLogoutTime) {
-        const timeSinceLogout = Date.now() - parseInt(lastLogoutTime);
-        const remainingCooldown = Math.max(0, 3000 - timeSinceLogout); // 3 segundos de cooldown
-        
-        if (remainingCooldown > 0) {
-          setCooldown(Math.ceil(remainingCooldown / 1000));
-        } else {
-          setCooldown(0);
-          localStorage.removeItem('lastLogoutTime');
-        }
-      }
-    };
-
-    checkCooldown();
-    const interval = setInterval(checkCooldown, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const showAlert = (message, severity = 'error') => {
     setAlert({ open: true, message, severity });
@@ -69,7 +42,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     
-    if (isLoggingIn || cooldown > 0) return;
+    if (isLoggingIn) return;
     
     if (emailError || !email || !password) {
       showAlert("Por favor, preencha os campos corretamente.");
@@ -83,11 +56,7 @@ function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       
       console.log('Login bem-sucedido, redirecionando...');
-      
-      // Verificação extra para evitar redirecionamento duplo
-      if (window.location.pathname !== '/home') {
-        navigate("/home", { replace: true });
-      }
+      navigate("/home", { replace: true });
       
     } catch (error) {
       console.error("Erro no login:", error);
@@ -95,14 +64,10 @@ function Login() {
       
       if (error.code === 'auth/too-many-requests') {
         errorMessage = "Muitas tentativas de login. Tente novamente mais tarde.";
-        setCooldown(30);
-        setTimeout(() => setCooldown(0), 30000);
       } else if (error.code === 'auth/user-not-found') {
         errorMessage = "Usuário não encontrado.";
       } else if (error.code === 'auth/wrong-password') {
         errorMessage = "Senha incorreta.";
-        setCooldown(2);
-        setTimeout(() => setCooldown(0), 2000);
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = "Email inválido.";
       }
@@ -112,29 +77,6 @@ function Login() {
       setIsLoggingIn(false);
     }
   };
-
-  // Se estiver em cooldown, mostra contagem regressiva
-  if (cooldown > 0) {
-    return (
-      <div id={styles.loginContainer}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            gap: 2
-          }}
-        >
-          <CircularProgress />
-          <Typography variant="h6" component="div">
-            Aguarde {cooldown} segundos para tentar novamente
-          </Typography>
-        </Box>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -160,7 +102,7 @@ function Login() {
           <StandardButton 
             label={isLoggingIn ? "Entrando..." : "Login"} 
             type="submit" 
-            disabled={isLoggingIn || cooldown > 0}
+            disabled={isLoggingIn}
           />
           <p>Não tem uma conta?
             <Link to="/register" className={styles.link}>
