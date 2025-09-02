@@ -23,6 +23,9 @@ function Register() {
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
+    // Estado para controle de envio
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -31,21 +34,23 @@ function Register() {
             return;
         }
 
+        setIsSubmitting(true); // 🔹 Desativa botão imediatamente
+
         try {
             // Cria usuário com Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            
-            // Salva os dados adicionais no Firestore com data/hora de criação
+
+            // Salva os dados adicionais no Firestore
             const userData = { 
                 username, 
                 fullName, 
                 phone, 
                 email, 
-                role: 'user',
-                createdAt: new Date(), // Data e hora atual
-                createdAtTimestamp: new Date().toISOString() // Timestamp em formato ISO
+                role: "user",
+                createdAt: new Date(),
+                createdAtTimestamp: new Date().toISOString()
             };
-            
+
             await setDoc(doc(db, "users", userCredential.user.uid), userData);
 
             setErrorMessage("");
@@ -58,19 +63,20 @@ function Register() {
 
         } catch (error) {
             console.error("Erro no cadastro:", error);
-            
+
             let errorMessage = "Erro ao criar conta. Tente novamente.";
-            
-            if (error.code === 'auth/email-already-in-use') {
+            if (error.code === "auth/email-already-in-use") {
                 errorMessage = "Este email já está em uso.";
-            } else if (error.code === 'auth/weak-password') {
+            } else if (error.code === "auth/weak-password") {
                 errorMessage = "A senha deve ter pelo menos 6 caracteres.";
-            } else if (error.code === 'auth/invalid-email') {
+            } else if (error.code === "auth/invalid-email") {
                 errorMessage = "Email inválido.";
             }
-            
+
             setSuccessMessage("");
             setErrorMessage(errorMessage);
+
+            setIsSubmitting(false); // 🔹 Reativa botão em caso de erro
         }
     };
 
@@ -149,9 +155,9 @@ function Register() {
                 </div>
 
                 <StandardButton
-                    label="Registre-se"
+                    label={isSubmitting ? "Registrando..." : "Registre-se"}
                     type="submit"
-                    disabled={!isRegulamentoAceito}
+                    disabled={!isRegulamentoAceito || isSubmitting}
                 />
                 <SecondaryButton
                     label="Já tem uma conta? Faça login!"
