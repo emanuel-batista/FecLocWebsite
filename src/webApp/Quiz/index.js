@@ -1,7 +1,7 @@
 // src/webApp/Quiz/index.js
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getFirestore, collection, doc, getDoc, getDocs, query, orderBy, updateDoc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import Emblema from '../../components/common/Emblema';
@@ -21,6 +21,7 @@ import {
 function Quiz() {
   const { quizId } = useParams();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [curso, setCurso] = useState(null);
   const [perguntas, setPerguntas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,12 +32,23 @@ function Quiz() {
   const db = getFirestore();
 
   const fetchQuizData = useCallback(async () => {
+    setLoading(true);
     try {
+      // --- VALIDAÇÃO: VERIFICA SE O QUIZ JÁ FOI RESPONDIDO ---
+      if (currentUser) {
+        const emblemaRef = doc(db, "users", currentUser.uid, "emblemas", quizId);
+        const emblemaSnap = await getDoc(emblemaRef);
+        if (emblemaSnap.exists()) {
+          alert("Você já respondeu a este quiz!");
+          navigate('/home', { replace: true });
+          return;
+        }
+      }
+      
       const cursoRef = doc(db, 'cursos', quizId);
       const cursoSnap = await getDoc(cursoRef);
       if (!cursoSnap.exists()) {
         setError("Quiz não encontrado.");
-        setLoading(false);
         return;
       }
       setCurso(cursoSnap.data());
@@ -44,17 +56,22 @@ function Quiz() {
       const perguntasQuery = query(collection(db, 'cursos', quizId, 'perguntas'), orderBy('criadoEm', 'asc'));
       const querySnapshot = await getDocs(perguntasQuery);
       setPerguntas(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
     } catch (err) {
       setError("Erro ao carregar o quiz.");
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [db, quizId]);
+  }, [db, quizId, currentUser, navigate]);
 
   useEffect(() => {
-    fetchQuizData();
-  }, [fetchQuizData]);
+    if (currentUser) {
+      fetchQuizData();
+    } else {
+      setLoading(false);
+    }
+  }, [fetchQuizData, currentUser]);
 
   const handleRespostaChange = (perguntaId, resposta) => {
     setRespostas(prev => ({ ...prev, [perguntaId]: resposta }));
@@ -121,10 +138,9 @@ function Quiz() {
       </Container>
     );
   }
-  // A CHAVE EXTRA ESTAVA AQUI E FOI REMOVIDA
 
   if (!curso) {
-      return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>;
+      return null;
   }
 
   return (
@@ -136,14 +152,14 @@ function Quiz() {
         <Paper key={pergunta.id} sx={{ p: 3, my: 2 }}>
           <Typography variant="body1" fontWeight="bold">{index + 1}. {pergunta.pergunta}</Typography>
           <RadioGroup onChange={(e) => handleRespostaChange(pergunta.id, e.target.value)}>
-            {perguntas.length > 0 && pergunta.opcoes.map((opcao, i) => (
+            {pergunta.opcoes.map((opcao, i) => (
               <FormControlLabel key={i} value={opcao} control={<Radio />} label={opcao} />
             ))}
           </RadioGroup>
         </Paper>
       ))}
 
-      <Button variant="contained" size="large" onClick={handleSubmit} sx={{ mt: 3 }}>
+      <Button variant="contained" size="large" onClick={handleSubmit} sx={{ mt: 3 }} disabled={Object.keys(respostas).length < perguntas.length}>
         Finalizar Quiz
       </Button>
     </Container>
