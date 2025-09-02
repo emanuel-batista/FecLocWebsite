@@ -7,7 +7,7 @@ import { auth, db } from './firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
-import './App.css'; 
+import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/Sobre/SobrePage';
@@ -25,6 +25,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // Apenas atualiza o estado, NÃO redireciona
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
@@ -35,7 +36,7 @@ function App() {
         setCurrentUser(null);
         setUserRole(null);
       }
-      setLoading(false); 
+      setLoading(false);
     });
 
     return unsubscribe;
@@ -50,7 +51,7 @@ function App() {
 
   const AdminRoute = ({ children }) => {
     if (loading) {
-        return <div>A carregar...</div>;
+      return <div>A carregar...</div>;
     }
     return currentUser && userRole === 'admin' ? children : <Navigate to="/home" />;
   };
@@ -65,22 +66,22 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route 
-          path="/home" 
+        <Route
+          path="/home"
           element={
             <PrivateRoute>
               <HomeApp />
             </PrivateRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin/users" 
+        <Route
+          path="/admin/users"
           element={
             <AdminRoute>
               <AdminUsers />
             </AdminRoute>
-          } 
+          }
         />
       </Routes>
     </Router>
