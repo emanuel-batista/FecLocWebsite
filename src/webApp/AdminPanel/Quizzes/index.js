@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getFirestore, collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { QRCode } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react'; // CORREÇÃO APLICADA AQUI
 import {
   Container,
   Typography,
@@ -15,7 +15,7 @@ import {
   ListItemText,
   Divider,
   CircularProgress,
-  Dialog, // Para a janela modal
+  Dialog,
   DialogTitle,
   DialogContent,
   IconButton
@@ -103,7 +103,7 @@ function AdminQuizzes() {
         </DialogTitle>
         <DialogContent sx={{ textAlign: 'center', p: 4 }}>
           {selectedCurso && (
-            <QRCode
+            <QRCodeCanvas // CORREÇÃO APLICADA AQUI
               value={`${window.location.origin}/quiz/responder/${selectedCurso.id}`}
               size={256}
               includeMargin={true}
