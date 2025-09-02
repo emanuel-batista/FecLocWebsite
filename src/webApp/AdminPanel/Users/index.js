@@ -1,6 +1,7 @@
-// AdminPanel/Users/index.js
+// src/webApp/AdminPanel/Users/index.js
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Importado para o botão de voltar
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   Container,
@@ -18,8 +19,11 @@ import {
   Avatar,
   Chip,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Button, // Importado para o botão de ação
+  IconButton // Para o ícone de voltar
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Ícone de voltar
 
 function Users() {
   const { currentUser } = useAuth();
@@ -27,7 +31,6 @@ function Users() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Hooks para responsividade do Material-UI
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -38,11 +41,9 @@ function Users() {
         setLoading(false);
         return;
       }
-
       try {
         setLoading(true);
         setError('');
-
         const token = await currentUser.getIdToken();
         const functionUrl = 'https://us-central1-un1l0c.cloudfunctions.net/listUsers';
         
@@ -56,14 +57,10 @@ function Users() {
         }
 
         const data = await response.json();
-
-        // **NOVO: Ordena os usuários pela data de criação (do mais novo para o mais antigo)**
         const sortedUsers = (data.users || []).sort((a, b) => 
           new Date(b.creationTime) - new Date(a.creationTime)
         );
-
         setUsers(sortedUsers);
-
       } catch (err) {
         console.error(err);
         setError(err.message || 'Ocorreu um erro desconhecido.');
@@ -71,9 +68,45 @@ function Users() {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, [currentUser]);
+
+  // --- NOVA FUNÇÃO PARA ATIVAR/DESATIVAR USUÁRIO ---
+  const handleToggleUserStatus = async (uid, currentStatus) => {
+    if (!currentUser) return;
+
+    // Atualiza o estado local imediatamente para uma UI mais rápida
+    setUsers(users.map(user => 
+      user.uid === uid ? { ...user, disabled: !currentStatus } : user
+    ));
+
+    try {
+      const token = await currentUser.getIdToken();
+      const response = await fetch('/api/toggle-user-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ uid: uid, disabled: !currentStatus }),
+      });
+
+      if (!response.ok) {
+        // Se a API falhar, reverte a mudança no estado local
+        setUsers(users.map(user => 
+          user.uid === uid ? { ...user, disabled: currentStatus } : user
+        ));
+        alert('Falha ao atualizar o status do usuário.');
+      }
+    } catch (error) {
+      console.error("Erro ao alterar status do usuário:", error);
+      // Reverte a mudança se ocorrer um erro
+      setUsers(users.map(user => 
+        user.uid === uid ? { ...user, disabled: currentStatus } : user
+      ));
+      alert('Falha ao atualizar o status do usuário.');
+    }
+  };
 
   if (loading) {
     return (
@@ -92,6 +125,7 @@ function Users() {
             <TableCell>Email</TableCell>
             <TableCell>Data de Criação</TableCell>
             <TableCell>Status</TableCell>
+            <TableCell align="right">Ações</TableCell> 
           </TableRow>
         </TableHead>
         <TableBody>
@@ -99,20 +133,20 @@ function Users() {
             <TableRow key={user.uid} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell component="th" scope="row">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Avatar src={user.photoURL} sx={{ mr: 2 }}>
-                    {user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)}
-                  </Avatar>
+                  <Avatar src={user.photoURL} sx={{ mr: 2 }}>{user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)}</Avatar>
                   {user.displayName || 'Sem nome'}
                 </Box>
               </TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>{new Date(user.creationTime).toLocaleDateString('pt-BR')}</TableCell>
               <TableCell>
-                <Chip 
-                  label={user.disabled ? 'Desativado' : 'Ativo'} 
-                  color={user.disabled ? 'error' : 'success'} 
-                  size="small" 
-                />
+                <Chip label={user.disabled ? 'Desativado' : 'Ativo'} color={user.disabled ? 'error' : 'success'} size="small" />
+              </TableCell>
+              {/* --- BOTÃO DE AÇÃO --- */}
+              <TableCell align="right">
+                <Button variant="outlined" size="small" color={user.disabled ? 'success' : 'error'} onClick={() => handleToggleUserStatus(user.uid, user.disabled)}>
+                  {user.disabled ? 'Reativar' : 'Desativar'}
+                </Button>
               </TableCell>
             </TableRow>
           ))}
@@ -124,27 +158,20 @@ function Users() {
   const renderMobileView = () => (
     <Box>
       {users.map((user) => (
-        <Paper key={user.uid} sx={{ p: 2, mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar src={user.photoURL} sx={{ width: 48, height: 48 }}>
-            {user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)}
-          </Avatar>
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="body1" fontWeight="bold" noWrap>
-              {user.displayName || 'Sem nome'}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" noWrap>
-              {user.email}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Criado em: {new Date(user.creationTime).toLocaleDateString('pt-BR')}
-            </Typography>
+        <Paper key={user.uid} sx={{ p: 2, mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Avatar src={user.photoURL} sx={{ width: 48, height: 48 }}>{user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)}</Avatar>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="body1" fontWeight="bold" noWrap>{user.displayName || 'Sem nome'}</Typography>
+              <Typography variant="body2" color="text.secondary" noWrap>{user.email}</Typography>
+              <Typography variant="caption" color="text.secondary">Criado em: {new Date(user.creationTime).toLocaleDateString('pt-BR')}</Typography>
+            </Box>
+            <Chip label={user.disabled ? 'Desativado' : 'Ativo'} color={user.disabled ? 'error' : 'success'} size="small" />
           </Box>
-          <Chip 
-            label={user.disabled ? 'Desativado' : 'Ativo'} 
-            color={user.disabled ? 'error' : 'success'} 
-            size="small" 
-            sx={{ alignSelf: 'flex-start' }}
-          />
+          {/* --- BOTÃO DE AÇÃO NO MOBILE --- */}
+          <Button fullWidth variant="outlined" size="small" color={user.disabled ? 'success' : 'error'} onClick={() => handleToggleUserStatus(user.uid, user.disabled)}>
+            {user.disabled ? 'Reativar' : 'Desativar'}
+          </Button>
         </Paper>
       ))}
     </Box>
@@ -152,13 +179,18 @@ function Users() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom component="h1">
-        Painel de Usuários
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        {/* --- BOTÃO DE VOLTAR --- */}
+        <IconButton component={Link} to="/admin" sx={{ mr: 2 }}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4" component="h1">
+          Painel de Usuários
+        </Typography>
+      </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      {/* **NOVO: Renderização condicional baseada no tamanho da tela** */}
       {isMobile ? renderMobileView() : renderDesktopView()}
     </Container>
   );
