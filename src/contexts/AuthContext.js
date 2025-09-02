@@ -1,7 +1,8 @@
 // src/contexts/AuthContext.js
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { auth } from '../firebase/config'; // Verifique o caminho para seu config
 
 const AuthContext = createContext();
 
@@ -15,9 +16,28 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      setUserRole(user ? 'user' : null); // Você pode buscar do Firestore se necessário
+
+      if (user) {
+        try {
+          // Pega o token do usuário e os "claims" (permissões)
+          const idTokenResult = await user.getIdTokenResult();
+          
+          // Verifica se o claim 'admin' é verdadeiro
+          if (idTokenResult.claims.admin === true) {
+            setUserRole('admin');
+          } else {
+            setUserRole('user');
+          }
+        } catch (error) {
+          console.error("Erro ao buscar permissões do usuário:", error);
+          setUserRole('user'); // Define como user em caso de erro
+        }
+      } else {
+        setUserRole(null); // Nenhum usuário logado
+      }
+
       setLoading(false);
     });
 
@@ -27,7 +47,7 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     userRole,
-    loading
+    loading,
   };
 
   return (
