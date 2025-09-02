@@ -7,11 +7,8 @@ import {
   setPersistence, 
   browserLocalPersistence
 } from 'firebase/auth';
-
-// Importações do Material-UI (apenas as necessárias)
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
-
 import styles from "./Login.module.css";
 import StandardButton from 'components/common/StandardButton';
 import StandardInput from 'components/common/StandardInput';
@@ -27,6 +24,7 @@ function Login() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
   const navigate = useNavigate();
+  const [hasLoggedIn, setHasLoggedIn] = useState(false);
 
   const showAlert = (message, severity = 'error') => {
     setAlert({ open: true, message, severity });
@@ -45,7 +43,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     
-    if (isLoggingIn) return;
+    if (isLoggingIn || hasLoggedIn) return;
     
     if (emailError || !email || !password) {
       showAlert("Por favor, preencha os campos corretamente.");
@@ -53,13 +51,18 @@ function Login() {
     }
 
     setIsLoggingIn(true);
+    setHasLoggedIn(true);
 
     try {
       await setPersistence(auth, browserLocalPersistence);
+      // Removida a variável não utilizada userCredential
       await signInWithEmailAndPassword(auth, email, password);
       
       console.log('Login bem-sucedido, redirecionando...');
-      navigate("/home", { replace: true });
+      
+      if (window.location.pathname !== '/home') {
+        navigate("/home", { replace: true });
+      }
       
     } catch (error) {
       console.error("Erro no login:", error);
@@ -73,9 +76,12 @@ function Login() {
         errorMessage = "Senha incorreta.";
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = "Email inválido.";
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = "Operação não permitida. Verifique a configuração do Firebase.";
       }
       
       showAlert(errorMessage);
+      setHasLoggedIn(false);
     } finally {
       setIsLoggingIn(false);
     }
@@ -105,7 +111,7 @@ function Login() {
           <StandardButton 
             label={isLoggingIn ? "Entrando..." : "Login"} 
             type="submit" 
-            disabled={isLoggingIn}
+            disabled={isLoggingIn || hasLoggedIn}
           />
           <p>Não tem uma conta?
             <Link to="/register" className={styles.link}>
