@@ -3,7 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { Container, Typography, Box, CircularProgress, Button, List, ListItem, ListItemText, Paper } from '@mui/material';
+import { 
+  Container, 
+  Typography, 
+  Box, 
+  CircularProgress, 
+  Button, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Paper,
+  Divider // Para separar o título da lista
+} from '@mui/material';
 import MapIcon from '@mui/icons-material/Map';
 import styles from './Unidade.module.css';
 
@@ -17,14 +28,12 @@ function Unidade() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Buscar dados da unidade
         const unidadeRef = doc(db, 'unidades', unidadeId);
         const unidadeSnap = await getDoc(unidadeRef);
         if (unidadeSnap.exists()) {
           setUnidade(unidadeSnap.data());
         }
 
-        // Buscar cursos relacionados a esta unidade
         const cursosQuery = query(collection(db, 'cursos'), where('unidadeId', '==', unidadeId));
         const cursosSnapshot = await getDocs(cursosQuery);
         setCursos(cursosSnapshot.docs.map(doc => doc.data()));
@@ -38,11 +47,11 @@ function Unidade() {
   }, [unidadeId, db]);
 
   if (loading) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress /></Box>;
   }
 
   if (!unidade) {
-    return <Typography sx={{ textAlign: 'center', mt: 5 }}>Unidade não encontrada.</Typography>;
+    return <Typography sx={{ textAlign: 'center', mt: 5, fontFamily: 'Roboto' }}>Unidade não encontrada.</Typography>;
   }
 
   return (
@@ -52,33 +61,60 @@ function Unidade() {
     >
       <div className={styles.overlay}>
         <Container maxWidth="md" className={styles.content}>
-          <Typography variant="h2" component="h1" gutterBottom>{unidade.nome}</Typography>
+          <Typography variant="h2" component="h1" gutterBottom sx={{ fontFamily: 'Roboto', fontWeight: 'bold' }}>
+            {unidade.nome}
+          </Typography>
           
-          <Paper sx={{ p: 3, my: 4, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
-            <Typography variant="h5" gutterBottom>Cursos com Stand nesta Unidade:</Typography>
+          <Paper sx={{ p: 3, my: 4, backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '16px' }}>
+            <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Roboto', fontWeight: 500, color: '#333' }}>
+              Cursos com Stand nesta Unidade:
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
             <List>
               {cursos.length > 0 ? (
                 cursos.map((curso, index) => (
                   <ListItem key={index}>
-                    <ListItemText primary={curso.nome} />
+                    {/* --- NOME DO CURSO EM NEGRITO --- */}
+                    <ListItemText 
+                      primary={curso.nome}
+                      primaryTypographyProps={{ fontFamily: 'Roboto', fontWeight: 'bold', color: '#111' }} 
+                    />
                   </ListItem>
                 ))
               ) : (
                 <ListItem>
-                  <ListItemText primary="Nenhum curso com stand cadastrado para esta unidade." />
+                  <ListItemText 
+                    primary="Nenhum curso com stand cadastrado para esta unidade." 
+                    primaryTypographyProps={{ fontFamily: 'Roboto', color: '#555' }}
+                  />
                 </ListItem>
               )}
             </List>
           </Paper>
 
+          {/* --- BOTÃO COM A COR E ESTILO ATUALIZADOS --- */}
           <Button
             variant="contained"
-            color="secondary"
             size="large"
             startIcon={<MapIcon />}
             href={unidade.localizacaoUrl}
-            target="_blank" // Abre em nova aba
+            target="_blank"
             rel="noopener noreferrer"
+            sx={{
+              fontFamily: 'Roboto',
+              fontWeight: 'bold',
+              backgroundColor: '#014195', // Cor personalizada
+              color: 'white',
+              px: 4, // Padding horizontal
+              py: 1.5, // Padding vertical
+              borderRadius: '28px',
+              textTransform: 'none', // Remove o 'uppercase' padrão
+              fontSize: '1rem',
+              '&:hover': {
+                backgroundColor: '#013275', // Cor um pouco mais escura no hover
+                boxShadow: '0 4px 20px rgba(0,0,0,0.25)'
+              }
+            }}
           >
             Ver no Google Maps
           </Button>
