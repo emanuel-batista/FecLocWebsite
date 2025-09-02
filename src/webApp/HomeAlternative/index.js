@@ -1,19 +1,39 @@
+import React, { useState } from "react";
 import PlaceCard from "components/HomeAlternative/PlaceCard";
 import styles from "./hAlternative.module.css";
-import cardniteImg from "./cardnite.jpg"; // <-- Import the image
+import cardniteImg from "./cardnite.jpg";
 import SearchBar from "components/HomeAlternative/SearchBar";
-import { Alert } from "@mui/material";
-import { getAuth, signOut } from "firebase/auth";
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+// Importe a instância do auth do arquivo de configuração
+import { auth } from "../../firebase/config";
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function HomeAlternative() {
-    const auth = getAuth();
+    const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
+    const navigate = useNavigate();
 
-    const handleLogout = () => {
-        signOut(auth).then(() => {
-            <Alert severity="success">Sign-out successful.</Alert>
-        }).catch((error) => {
-            <Alert severity="error">An error happened.</Alert>
-        });
+    const showAlert = (message, severity = 'info') => {
+        setAlert({ open: true, message, severity });
+    };
+
+    const handleCloseAlert = () => {
+        setAlert({ ...alert, open: false });
+    };
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            showAlert("Logout realizado com sucesso!", "success");
+            // Redireciona após um breve delay para mostrar o alerta
+            setTimeout(() => {
+                navigate("/", { replace: true });
+            }, 1500);
+        } catch (error) {
+            console.error("Erro no logout:", error);
+            showAlert("Erro ao fazer logout. Tente novamente.", "error");
+        }
     };
 
     return (
@@ -26,12 +46,27 @@ function HomeAlternative() {
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
-
             </div>
+            
             {/* logout button */}
             <button onClick={handleLogout} className={styles.logoutButton}>
                 Logout
             </button>
+
+            <Snackbar 
+                open={alert.open} 
+                autoHideDuration={4000} 
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseAlert} 
+                    severity={alert.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {alert.message}
+                </Alert>
+            </Snackbar>
         </div>
     );
 }
