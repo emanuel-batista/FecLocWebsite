@@ -22,10 +22,11 @@ function App() {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // App.js - Ajuste no useEffect
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Apenas atualiza o estado, NÃO redireciona
+        // Apenas atualiza o estado, NÃO redireciona automaticamente
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
@@ -41,6 +42,8 @@ function App() {
 
     return unsubscribe;
   }, []);
+
+
 
   const PrivateRoute = ({ children }) => {
     if (loading) {

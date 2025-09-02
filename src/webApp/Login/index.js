@@ -1,12 +1,11 @@
-// Login.js - Versão Corrigida com Cooldown
+// Login.js - Versão Final Corrigida
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { 
   signInWithEmailAndPassword, 
   setPersistence, 
-  browserLocalPersistence,
-  onAuthStateChanged
+  browserLocalPersistence
 } from 'firebase/auth';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
@@ -36,7 +35,7 @@ function Login() {
       const lastLogoutTime = localStorage.getItem('lastLogoutTime');
       if (lastLogoutTime) {
         const timeSinceLogout = Date.now() - parseInt(lastLogoutTime);
-        const remainingCooldown = Math.max(0, 5000 - timeSinceLogout); // 5 segundos de cooldown
+        const remainingCooldown = Math.max(0, 3000 - timeSinceLogout); // 3 segundos de cooldown
         
         if (remainingCooldown > 0) {
           setCooldown(Math.ceil(remainingCooldown / 1000));
@@ -52,18 +51,6 @@ function Login() {
 
     return () => clearInterval(interval);
   }, []);
-
-  // Verifica se usuário já está autenticado
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log('Usuário já autenticado, redirecionando...');
-        navigate("/home", { replace: true });
-      }
-    });
-
-    return unsubscribe;
-  }, [navigate]);
 
   const showAlert = (message, severity = 'error') => {
     setAlert({ open: true, message, severity });
@@ -96,7 +83,11 @@ function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       
       console.log('Login bem-sucedido, redirecionando...');
-      navigate("/home", { replace: true });
+      
+      // Verificação extra para evitar redirecionamento duplo
+      if (window.location.pathname !== '/home') {
+        navigate("/home", { replace: true });
+      }
       
     } catch (error) {
       console.error("Erro no login:", error);
@@ -104,16 +95,14 @@ function Login() {
       
       if (error.code === 'auth/too-many-requests') {
         errorMessage = "Muitas tentativas de login. Tente novamente mais tarde.";
-        // Define cooldown de 30 segundos para muitas tentativas
         setCooldown(30);
         setTimeout(() => setCooldown(0), 30000);
       } else if (error.code === 'auth/user-not-found') {
         errorMessage = "Usuário não encontrado.";
       } else if (error.code === 'auth/wrong-password') {
         errorMessage = "Senha incorreta.";
-        // Pequeno cooldown para senha incorreta
-        setCooldown(3);
-        setTimeout(() => setCooldown(0), 3000);
+        setCooldown(2);
+        setTimeout(() => setCooldown(0), 2000);
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = "Email inválido.";
       }
@@ -141,9 +130,6 @@ function Login() {
           <CircularProgress />
           <Typography variant="h6" component="div">
             Aguarde {cooldown} segundos para tentar novamente
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Esta pausa ajuda a prevenir tentativas muito rápidas de login.
           </Typography>
         </Box>
       </div>
