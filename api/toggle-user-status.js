@@ -13,6 +13,18 @@ if (!admin.apps.length) {
 }
 
 export default async function handler(request, response) {
+  // --- INÍCIO DA CORREÇÃO DE CORS ---
+  // Define os headers de permissão para todas as respostas
+  response.setHeader('Access-Control-Allow-Origin', '*'); // Em produção, restrinja a 'https://uniloc.vercel.app'
+  response.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+  // Responde imediatamente à requisição de preparação (preflight)
+  if (request.method === 'OPTIONS') {
+    return response.status(200).end();
+  }
+  // --- FIM DA CORREÇÃO DE CORS ---
+
   // Apenas admins podem executar esta função
   const idToken = request.headers.authorization?.split('Bearer ')[1];
   try {
