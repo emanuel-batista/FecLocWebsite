@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getFirestore, collection, getDocs, orderBy, query } from 'firebase/firestore';
-import QRCode from 'qrcode.react'; // Importa a biblioteca do QR Code
+import { QRCode } from 'qrcode.react';
 import {
   Container,
   Typography,
