@@ -9,7 +9,7 @@ function Navbar() {
   return (
     // Use className e o objeto 'styles' para aplicar a classe
     <div className={styles.navbar}>
-      <Link to="/"><Logo className={styles.Logo} /></Link>
+      <Link to="/home"><Logo className={styles.Logo} /></Link>
     </div>
   );
 }
