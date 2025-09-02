@@ -1,13 +1,14 @@
 
 :root {
   --background-dark: #2c2c2c;
+  --white: white;
   --text-light: black;
   --primary-blue: #014195;
   --gray: #A9A9A9;
 }
 
 .sobrePage {
-    background-color: var(--background-dark);
+    background-color: var(--white);
     min-height: 100vh;
     width: 100vw;
     color: var(--text-light); /*Usando a variável de cor */
