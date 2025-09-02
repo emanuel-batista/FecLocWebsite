@@ -1,0 +1,54 @@
+/* src/components/common/Emblema/Emblema.module.css */
+
+.emblema {
+  width: 120px; /* Aumentei um pouco para caber o texto */
+  height: 120px;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  margin: 24px auto;
+  position: relative; /* Necessário para centralizar o texto filho */
+  display: flex; /* Usamos flexbox para centralizar o texto */
+  align-items: center;
+  justify-content: center;
+  padding: 10px; /* Espaçamento interno para o texto não colar nas bordas */
+  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+}
+
+.silver {
+  background-color: #c0c0c0;
+  background-image: linear-gradient(145deg, #e8e8e8, #a7a7a7);
+}
+
+.gold {
+  background: linear-gradient(
+    145deg, 
+    #ffd700, 
+    #f0c000, 
+    #ffec80, 
+    #f0c000, 
+    #ffd700
+  );
+  background-size: 200% 200%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* --- NOVO ESTILO PARA O TEXTO --- */
+.textoEmblema {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para melhorar a legibilidade */
+  line-height: 1.2;
+}
+/* ---------------------------------- */
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 50%;
+  }
+  100% {
+    background-position: -200% 50%;
+  }
+}

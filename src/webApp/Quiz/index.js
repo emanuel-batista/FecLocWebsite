@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { getFirestore, collection, doc, getDoc, getDocs, query, orderBy, updateDoc } from 'firebase/firestore';
-import { useAuth } from '../../contexts/AuthContext'; // Verifique o caminho
+import { getFirestore, collection, doc, getDoc, getDocs, query, orderBy, updateDoc, setDoc } from 'firebase/firestore';
+import { useAuth } from '../../contexts/AuthContext';
+import Emblema from '../../components/common/Emblema';
 import {
   Container,
   Typography,
@@ -18,13 +19,14 @@ import {
 } from '@mui/material';
 
 function Quiz() {
-  const { quizId } = useParams(); // Pega o ID do quiz da URL
-  const { currentUser } = useAuth(); // Pega o usuário logado
+  const { quizId } = useParams();
+  const { currentUser } = useAuth();
   const [curso, setCurso] = useState(null);
   const [perguntas, setPerguntas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [respostas, setRespostas] = useState({});
   const [pontuacao, setPontuacao] = useState(null);
+  const [emblemaConquistado, setEmblemaConquistado] = useState(null);
   const [error, setError] = useState('');
   const db = getFirestore();
 
@@ -34,6 +36,7 @@ function Quiz() {
       const cursoSnap = await getDoc(cursoRef);
       if (!cursoSnap.exists()) {
         setError("Quiz não encontrado.");
+        setLoading(false);
         return;
       }
       setCurso(cursoSnap.data());
@@ -65,18 +68,31 @@ function Quiz() {
       }
     });
     
-    const pontosGanhos = acertos * 10; // Ex: 10 pontos por acerto
+    const pontosGanhos = acertos * 10;
     setPontuacao(pontosGanhos);
 
-    // Atualiza a pontuação total do usuário no Firestore
+    const pontuacaoMaxima = perguntas.length * 10;
+    const emblemaTipo = pontosGanhos === pontuacaoMaxima ? 'gold' : 'silver';
+    setEmblemaConquistado(emblemaTipo);
+
     if (currentUser) {
-      const userRef = doc(db, "users", currentUser.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const ptsAtuais = userSnap.data().ptsTotais || 0;
-        await updateDoc(userRef, {
-          ptsTotais: ptsAtuais + pontosGanhos
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const ptsAtuais = userSnap.data().ptsTotais || 0;
+          await updateDoc(userRef, {
+            ptsTotais: ptsAtuais + pontosGanhos
+          });
+        }
+        const emblemaRef = doc(db, "users", currentUser.uid, "emblemas", quizId);
+        await setDoc(emblemaRef, {
+          tipo: emblemaTipo,
+          conquistadoEm: new Date(),
+          cursoNome: curso.nome
         });
+      } catch (err) {
+        console.error("Erro ao salvar pontuação ou emblema:", err);
       }
     }
   };
@@ -84,21 +100,31 @@ function Quiz() {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>;
   if (error) return <Container sx={{ mt: 4 }}><Alert severity="error">{error}</Alert></Container>;
 
-  // Se o quiz já foi respondido, mostra a pontuação
   if (pontuacao !== null) {
     return (
       <Container maxWidth="sm" sx={{ mt: 4, textAlign: 'center' }}>
         <Paper sx={{ p: 4 }}>
           <Typography variant="h4">Quiz Finalizado!</Typography>
-          <Typography variant="h5" sx={{ my: 3 }}>
+          {emblemaConquistado && (
+            <Emblema 
+              tipo={emblemaConquistado} 
+              nomeCurso={curso?.nome || ''} 
+            />
+          )}
+          <Typography variant="h5" sx={{ my: 2 }}>
             Você ganhou {pontuacao} pontos!
           </Typography>
           <Typography variant="body1">
-            Sua pontuação total foi atualizada.
+            Sua pontuação e seu novo emblema foram salvos no seu perfil.
           </Typography>
         </Paper>
       </Container>
     );
+  }
+  // A CHAVE EXTRA ESTAVA AQUI E FOI REMOVIDA
+
+  if (!curso) {
+      return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>;
   }
 
   return (
@@ -110,7 +136,7 @@ function Quiz() {
         <Paper key={pergunta.id} sx={{ p: 3, my: 2 }}>
           <Typography variant="body1" fontWeight="bold">{index + 1}. {pergunta.pergunta}</Typography>
           <RadioGroup onChange={(e) => handleRespostaChange(pergunta.id, e.target.value)}>
-            {pergunta.opcoes.map((opcao, i) => (
+            {perguntas.length > 0 && pergunta.opcoes.map((opcao, i) => (
               <FormControlLabel key={i} value={opcao} control={<Radio />} label={opcao} />
             ))}
           </RadioGroup>
