@@ -1,14 +1,18 @@
-// Login.js - Versão Corrigida
+// Login.js - Versão Corrigida com Cooldown
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { 
   signInWithEmailAndPassword, 
   setPersistence, 
-  browserLocalPersistence
+  browserLocalPersistence,
+  onAuthStateChanged
 } from 'firebase/auth';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import styles from "./Login.module.css";
 import StandardButton from 'components/common/StandardButton';
 import StandardInput from 'components/common/StandardInput';
@@ -23,25 +27,43 @@ function Login() {
   const [emailError, setEmailError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
+  const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
-  const [hasLoggedIn, setHasLoggedIn] = useState(() => {
-    // Inicializa com o valor do localStorage
-    return localStorage.getItem('hasLoggedIn') === 'true';
-  });
 
+  // Verifica cooldown periodicamente
   useEffect(() => {
-    // Limpa o estado de login quando o componente é montado
-    const checkAuthState = async () => {
-      const user = auth.currentUser;
-      if (!user) {
-        // Se não há usuário autenticado, permite login novamente
-        setHasLoggedIn(false);
-        localStorage.removeItem('hasLoggedIn');
+    const checkCooldown = () => {
+      const lastLogoutTime = localStorage.getItem('lastLogoutTime');
+      if (lastLogoutTime) {
+        const timeSinceLogout = Date.now() - parseInt(lastLogoutTime);
+        const remainingCooldown = Math.max(0, 5000 - timeSinceLogout); // 5 segundos de cooldown
+        
+        if (remainingCooldown > 0) {
+          setCooldown(Math.ceil(remainingCooldown / 1000));
+        } else {
+          setCooldown(0);
+          localStorage.removeItem('lastLogoutTime');
+        }
       }
     };
 
-    checkAuthState();
+    checkCooldown();
+    const interval = setInterval(checkCooldown, 1000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  // Verifica se usuário já está autenticado
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log('Usuário já autenticado, redirecionando...');
+        navigate("/home", { replace: true });
+      }
+    });
+
+    return unsubscribe;
+  }, [navigate]);
 
   const showAlert = (message, severity = 'error') => {
     setAlert({ open: true, message, severity });
@@ -60,7 +82,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     
-    if (isLoggingIn || hasLoggedIn) return;
+    if (isLoggingIn || cooldown > 0) return;
     
     if (emailError || !email || !password) {
       showAlert("Por favor, preencha os campos corretamente.");
@@ -68,18 +90,13 @@ function Login() {
     }
 
     setIsLoggingIn(true);
-    setHasLoggedIn(true);
-    localStorage.setItem('hasLoggedIn', 'true'); // ← Salva no localStorage
 
     try {
       await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       
       console.log('Login bem-sucedido, redirecionando...');
-      
-      if (window.location.pathname !== '/home') {
-        navigate("/home", { replace: true });
-      }
+      navigate("/home", { replace: true });
       
     } catch (error) {
       console.error("Erro no login:", error);
@@ -87,23 +104,51 @@ function Login() {
       
       if (error.code === 'auth/too-many-requests') {
         errorMessage = "Muitas tentativas de login. Tente novamente mais tarde.";
+        // Define cooldown de 30 segundos para muitas tentativas
+        setCooldown(30);
+        setTimeout(() => setCooldown(0), 30000);
       } else if (error.code === 'auth/user-not-found') {
         errorMessage = "Usuário não encontrado.";
       } else if (error.code === 'auth/wrong-password') {
         errorMessage = "Senha incorreta.";
+        // Pequeno cooldown para senha incorreta
+        setCooldown(3);
+        setTimeout(() => setCooldown(0), 3000);
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = "Email inválido.";
-      } else if (error.code === 'auth/operation-not-allowed') {
-        errorMessage = "Operação não permitida. Verifique a configuração do Firebase.";
       }
       
       showAlert(errorMessage);
-      setHasLoggedIn(false);
-      localStorage.removeItem('hasLoggedIn'); // ← Remove em caso de erro
     } finally {
       setIsLoggingIn(false);
     }
   };
+
+  // Se estiver em cooldown, mostra contagem regressiva
+  if (cooldown > 0) {
+    return (
+      <div id={styles.loginContainer}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            gap: 2
+          }}
+        >
+          <CircularProgress />
+          <Typography variant="h6" component="div">
+            Aguarde {cooldown} segundos para tentar novamente
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Esta pausa ajuda a prevenir tentativas muito rápidas de login.
+          </Typography>
+        </Box>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -129,7 +174,7 @@ function Login() {
           <StandardButton 
             label={isLoggingIn ? "Entrando..." : "Login"} 
             type="submit" 
-            disabled={isLoggingIn || hasLoggedIn}
+            disabled={isLoggingIn || cooldown > 0}
           />
           <p>Não tem uma conta?
             <Link to="/register" className={styles.link}>

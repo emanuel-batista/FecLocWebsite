@@ -1,3 +1,4 @@
+// HomeAlternative.js - Versão Corrigida
 import React, { useState } from "react";
 import PlaceCard from "components/HomeAlternative/PlaceCard";
 import styles from "./hAlternative.module.css";
@@ -5,7 +6,6 @@ import cardniteImg from "./cardnite.jpg";
 import SearchBar from "components/HomeAlternative/SearchBar";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
-// Importe a instância do auth do arquivo de configuração
 import { auth } from "../../firebase/config";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -22,21 +22,28 @@ function HomeAlternative() {
         setAlert({ ...alert, open: false });
     };
 
-    // HomeAlternative.js - Adicione esta função
     const handleLogout = async () => {
         try {
+            // Primeiro, mostra mensagem de que está processando
+            showAlert("Saindo...", "info");
+            
+            // Aguarda o signOut completar
             await signOut(auth);
-            showAlert("Logout realizado com sucesso!", "success");
-
-            // Limpa qualquer estado persistente do localStorage
+            
+            // Aguarda um tempo adicional para garantir que o Firebase processe o logout
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Limpa qualquer estado local
+            localStorage.removeItem('lastLogoutTime');
             localStorage.removeItem('hasLoggedIn');
-
-            // Redireciona após um breve delay para mostrar o alerta
+            
+            showAlert("Logout realizado com sucesso!", "success");
+            
+            // Redireciona após um breve delay
             setTimeout(() => {
                 navigate("/", { replace: true });
-                // Força um reload completo para limpar o estado da aplicação
-                window.location.reload();
             }, 1500);
+            
         } catch (error) {
             console.error("Erro no logout:", error);
             showAlert("Erro ao fazer logout. Tente novamente.", "error");
@@ -54,20 +61,19 @@ function HomeAlternative() {
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
             </div>
-
-            {/* logout button */}
+            
             <button onClick={handleLogout} className={styles.logoutButton}>
                 Logout
             </button>
 
-            <Snackbar
-                open={alert.open}
-                autoHideDuration={4000}
+            <Snackbar 
+                open={alert.open} 
+                autoHideDuration={4000} 
                 onClose={handleCloseAlert}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert
-                    onClose={handleCloseAlert}
+                <Alert 
+                    onClose={handleCloseAlert} 
                     severity={alert.severity}
                     sx={{ width: '100%' }}
                 >
