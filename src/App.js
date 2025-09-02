@@ -1,7 +1,6 @@
 // App.js - Versão Simplificada
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import './App.css'; 
 import Navbar from './components/Navbar/Navbar';
@@ -15,7 +14,6 @@ import AdminUsers from './webApp/AdminPanel/Users';
 
 function App() {
   return (
-    <AuthProvider>
       <Router>
         <Navbar />
         <Routes>
@@ -47,7 +45,6 @@ function App() {
           />
         </Routes>
       </Router>
-    </AuthProvider>
   );
 }
 

@@ -1,6 +1,6 @@
 // Login.js - Versão Simplificada
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, Navigate, replace } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { 
   signInWithEmailAndPassword, 
@@ -12,6 +12,9 @@ import Snackbar from '@mui/material/Snackbar';
 import styles from "./Login.module.css";
 import StandardButton from 'components/common/StandardButton';
 import StandardInput from 'components/common/StandardInput';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+
 
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -24,10 +27,17 @@ function Login() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
 
+  const { currentUser } = useAuth();
+    const navigate = useNavigate();
   const showAlert = (message, severity = 'error') => {
     setAlert({ open: true, message, severity });
   };
 
+  useEffect(() => {
+    if (currentUser) {
+        navigate('/home', { replace: true });
+    }
+  }, [currentUser, navigate]);
   const handleCloseAlert = () => {
     setAlert({ ...alert, open: false });
   };
@@ -74,6 +84,8 @@ function Login() {
       setIsLoggingIn(false);
     }
   };
+
+  
 
   return (
     <>
