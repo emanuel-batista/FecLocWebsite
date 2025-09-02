@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
-// Importe as instâncias do auth e db do arquivo de configuração
 import { auth, db } from "../../firebase/config";
-import StandardButton from "components/common/StandardButton";
 import StandardInput from "components/common/StandardInput";
 import H2 from "components/common/text/H2";
 import styles from "./Register.module.css";
@@ -21,10 +19,9 @@ function Register() {
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-    const navigate = useNavigate();
-
-    // Estado para controle de envio
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,56 +31,51 @@ function Register() {
             return;
         }
 
-        setIsSubmitting(true); // 🔹 Desativa botão imediatamente
+        setIsSubmitting(true);
+        setErrorMessage("");
+        setSuccessMessage("");
 
         try {
-            // Cria usuário com Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-            // Salva os dados adicionais no Firestore
-            const userData = { 
-                username, 
-                fullName, 
-                phone, 
-                email, 
+            const userData = {
+                username,
+                fullName,
+                phone,
+                email,
                 role: "user",
                 createdAt: new Date(),
-                createdAtTimestamp: new Date().toISOString()
+                createdAtTimestamp: new Date().toISOString(),
             };
 
             await setDoc(doc(db, "users", userCredential.user.uid), userData);
 
-            setErrorMessage("");
             setSuccessMessage("Registro realizado com sucesso!");
 
-            // Redireciona após 2 segundos
-            setTimeout(() => {
-                navigate("/login");
-            }, 2000);
+            // Redireciona para login imediatamente
+            navigate("/login");
 
         } catch (error) {
             console.error("Erro no cadastro:", error);
 
-            let errorMessage = "Erro ao criar conta. Tente novamente.";
+            let msg = "Erro ao criar conta. Tente novamente.";
             if (error.code === "auth/email-already-in-use") {
-                errorMessage = "Este email já está em uso.";
+                msg = "Este email já está em uso.";
             } else if (error.code === "auth/weak-password") {
-                errorMessage = "A senha deve ter pelo menos 6 caracteres.";
+                msg = "A senha deve ter pelo menos 6 caracteres.";
             } else if (error.code === "auth/invalid-email") {
-                errorMessage = "Email inválido.";
+                msg = "Email inválido.";
             }
 
-            setSuccessMessage("");
-            setErrorMessage(errorMessage);
-
-            setIsSubmitting(false); // 🔹 Reativa botão em caso de erro
+            setErrorMessage(msg);
+            setIsSubmitting(false);
         }
     };
 
     return (
         <div>
             {errorMessage && <ErrorAlert message={errorMessage} />}
-            {successMessage && <ErrorAlert message={successMessage} />} 
+            {successMessage && <ErrorAlert message={successMessage} type="success" />}
 
             <form className={styles.form} onSubmit={handleSubmit}>
                 <H2>Cadastre-se e concorra à uma cesta de chocolate da Cacau Show*!🍫</H2>
@@ -154,11 +146,25 @@ function Register() {
                     </a>
                 </div>
 
-                <StandardButton
-                    label={isSubmitting ? "Registrando..." : "Registre-se"}
+                {/* Botão ajustado para mudar de cor */}
+                <button
                     type="submit"
                     disabled={!isRegulamentoAceito || isSubmitting}
-                />
+                    style={{
+                        backgroundColor: !isRegulamentoAceito || isSubmitting ? "#888" : "#014195",
+                        color: "white",
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: !isRegulamentoAceito || isSubmitting ? "not-allowed" : "pointer",
+                        fontWeight: "bold",
+                        marginTop: "10px",
+                        width: "100%",
+                    }}
+                >
+                    {isSubmitting ? "Registrando..." : "Registre-se"}
+                </button>
+
                 <SecondaryButton
                     label="Já tem uma conta? Faça login!"
                     onClick={() => navigate("/login")}
