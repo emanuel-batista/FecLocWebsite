@@ -58,9 +58,11 @@
 }
 
 /* Estilo para a lista de sugestões */
+/* src/components/HomeAlternative/homealternative.module.css */
+
 .suggestionsList {
   position: absolute;
-  top: 100%; /* Posiciona logo abaixo da barra de busca */
+  top: 100%;
   left: 0;
   right: 0;
   background-color: white;
@@ -70,12 +72,15 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000; /* Garante que fique acima de outros elementos */
+  
+  /* --- ATUALIZAÇÃO PARA MOBILE --- */
+  max-height: 40vh; /* Usa 40% da altura da tela como máximo */
+  overflow-y: auto; /* Adiciona scroll se a lista for muito grande */
+  /* ------------------------------ */
+
+  z-index: 1000;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .suggestionItem {
   padding: 12px 16px;
   cursor: pointer;
