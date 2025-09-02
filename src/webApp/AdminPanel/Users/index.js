@@ -42,7 +42,7 @@ function Users() {
         const token = await currentUser.getIdToken();
 
         // 2. Chama a sua Cloud Function (LEIA A SEÇÃO ABAIXO!)
-        const functionUrl = 'https://console.firebase.google.com/project/un1l0c/overview'; 
+        const functionUrl = 'https://us-central1-un1l0c.cloudfunctions.net/listUsers'; 
         
         const response = await fetch(functionUrl, {
           headers: {
