@@ -93,6 +93,7 @@ function Register() {
                 cpf: cpf.replace(/[^\d]+/g, ''), // Salva apenas os números
                 role: "user",
                 createdAt: new Date(),
+                ptsTotais: 0,
             };
             await setDoc(doc(db, "users", userCredential.user.uid), userData);
             setSuccessMessage("Registro realizado com sucesso!");

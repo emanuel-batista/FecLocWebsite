@@ -37,6 +37,9 @@ function App() {
           element={ <ProtectedRoute> <HomeApp /> </ProtectedRoute> } 
         />
 
+        {/* --- NOVA ROTA DO QUIZ --- */}
+        <Route path="/quiz/responder/:quizId" element={ <ProtectedRoute> <Quiz /> </ProtectedRoute> } />
+
         {/* =================================================== */}
         {/* === ROTAS PROTEGIDAS APENAS PARA ADMINISTRADORES === */}
         {/* =================================================== */}
