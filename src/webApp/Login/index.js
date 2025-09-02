@@ -1,6 +1,6 @@
 // Login.js - Versão Simplificada
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, replace } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { 
   signInWithEmailAndPassword, 
