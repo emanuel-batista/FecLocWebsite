@@ -1,4 +1,3 @@
-// webApp/Login/index.js
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -15,6 +14,8 @@ import {
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 import styles from "./Login.module.css";
 import StandardButton from 'components/common/StandardButton';
@@ -30,6 +31,7 @@ function Login() {
     const [emailError, setEmailError] = useState("");
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
     const navigate = useNavigate();
     const isMounted = useRef(true);
 
@@ -50,6 +52,14 @@ function Login() {
         };
     }, [navigate]);
 
+    const showAlert = (message, severity = 'error') => {
+        setAlert({ open: true, message, severity });
+    };
+
+    const handleCloseAlert = () => {
+        setAlert({ ...alert, open: false });
+    };
+
     const handleEmailChange = (e) => {
         const newEmail = e.target.value;
         setEmail(newEmail);
@@ -66,7 +76,7 @@ function Login() {
         if (isLoggingIn) return;
         
         if (emailError || !email || !password) {
-            alert("Por favor, preencha os campos corretamente.");
+            showAlert("Por favor, preencha os campos corretamente.");
             return;
         }
 
@@ -74,12 +84,12 @@ function Login() {
 
         try {
             await setPersistence(auth, browserLocalPersistence);
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            await signInWithEmailAndPassword(auth, email, password);
             
             if (!isMounted.current) return;
             
             console.log('Login bem-sucedido, redirecionando...');
-            alert(`Login bem-sucedido para ${userCredential.user.email}`);
+            // REMOVIDO: alert de sucesso que bloqueava o redirecionamento
             navigate("/home", { replace: true });
             
         } catch (error) {
@@ -94,9 +104,11 @@ function Login() {
                 errorMessage = "Usuário não encontrado.";
             } else if (error.code === 'auth/wrong-password') {
                 errorMessage = "Senha incorreta.";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "Email inválido.";
             }
             
-            alert(errorMessage);
+            showAlert(errorMessage);
         } finally {
             if (isMounted.current) {
                 setIsLoggingIn(false);
@@ -140,37 +152,54 @@ function Login() {
     }
 
     return (
-        <div id={styles.loginContainer}>
-            <form className={styles.form} onSubmit={handleLogin}>
-                <StandardInput
-                    type="email"
-                    placeholder="Email"
-                    required
-                    value={email}
-                    onChange={handleEmailChange}
-                    disabled={isLoggingIn}
-                />
-                {emailError && <span style={{color: "red", marginTop: "5px"}}>{emailError}</span>}
-                <StandardInput
-                    type="password"
-                    placeholder="Password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={isLoggingIn}
-                />
-                <StandardButton 
-                    label={isLoggingIn ? "Entrando..." : "Login"} 
-                    type="submit" 
-                    disabled={isLoggingIn}
-                />
-                <p>Não tem uma conta?
-                    <Link to="/register" className={styles.link}>
-                        Cadastre-se
-                    </Link>
-                </p>
-            </form>
-        </div>
+        <>
+            <div id={styles.loginContainer}>
+                <form className={styles.form} onSubmit={handleLogin}>
+                    <StandardInput
+                        type="email"
+                        placeholder="Email"
+                        required
+                        value={email}
+                        onChange={handleEmailChange}
+                        disabled={isLoggingIn}
+                    />
+                    {emailError && <span style={{color: "red", marginTop: "5px"}}>{emailError}</span>}
+                    <StandardInput
+                        type="password"
+                        placeholder="Password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={isLoggingIn}
+                    />
+                    <StandardButton 
+                        label={isLoggingIn ? "Entrando..." : "Login"} 
+                        type="submit" 
+                        disabled={isLoggingIn}
+                    />
+                    <p>Não tem uma conta?
+                        <Link to="/register" className={styles.link}>
+                            Cadastre-se
+                        </Link>
+                    </p>
+                </form>
+            </div>
+
+            <Snackbar 
+                open={alert.open} 
+                autoHideDuration={6000} 
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseAlert} 
+                    severity={alert.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {alert.message}
+                </Alert>
+            </Snackbar>
+        </>
     );
 }
 

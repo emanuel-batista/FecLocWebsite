@@ -1,11 +1,10 @@
-import React from 'react';
-// --- CORREÇÃO AQUI ---
-// Revertemos para o uso do 'Marker' para resolver o erro de compilação.
+import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 
 const containerStyle = {
-  width: '400px',
-  height: '400px'
+  width: '100%',
+  height: '100%',
+  minHeight: '400px'
 };
 
 const center = {
@@ -14,27 +13,93 @@ const center = {
 };
 
 function MapComponent() {
-  const { isLoaded } = useJsApiLoader({
+  const [map, setMap] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+
+  const { isLoaded, loadError: apiLoadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: ['places'] // Adicione bibliotecas necessárias
   });
 
-  return isLoaded ? (
+  useEffect(() => {
+    if (apiLoadError) {
+      console.error('Erro ao carregar Google Maps API:', apiLoadError);
+      setLoadError(true);
+    }
+  }, [apiLoadError]);
+
+  const onLoad = React.useCallback(function callback(map) {
+    setMap(map);
+  }, []);
+
+  const onUnmount = React.useCallback(function callback(map) {
+    setMap(null);
+  }, []);
+
+  if (loadError) {
+    return (
+      <div style={{ 
+        width: '400px', 
+        height: '400px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        backgroundColor: '#f0f0f0',
+        border: '1px solid #ccc'
+      }}>
+        <p>Erro ao carregar o mapa. Verifique a configuração da API Key.</p>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div style={{ 
+        width: '400px', 
+        height: '400px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        backgroundColor: '#f0f0f0'
+      }}>
+        <p>Carregando mapa...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ width: '400px', height: '400px' }}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
         zoom={12}
-        // O mapId foi removido temporariamente, pois não é necessário para o <Marker> básico
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+        options={{
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: true,
+          zoomControl: true,
+          styles: [
+            {
+              "featureType": "all",
+              "stylers": [{ "saturation": 0 }, { "hue": "#e7ecf0" }]
+            }
+          ]
+        }}
       >
-        {/* --- CORREÇÃO AQUI --- */}
-        {/* Usamos o componente <Marker> original, que é compatível com a sua biblioteca */}
         <Marker
           position={center}
           title="Estamos aqui!"
+          icon={{
+            url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+            scaledSize: new window.google.maps.Size(40, 40)
+          }}
         />
       </GoogleMap>
-  ) : <p>A carregar o mapa...</p>
+    </div>
+  );
 }
 
 export default React.memo(MapComponent);
-
