@@ -1,6 +1,6 @@
-// Login.js - Versão Corrigida
+// Login.js - Versão Simplificada
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { 
   signInWithEmailAndPassword, 
@@ -23,7 +23,6 @@ function Login() {
   const [emailError, setEmailError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
-  const navigate = useNavigate();
 
   const showAlert = (message, severity = 'error') => {
     setAlert({ open: true, message, severity });
@@ -54,9 +53,7 @@ function Login() {
     try {
       await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
-      
-      console.log('Login bem-sucedido, redirecionando...');
-      navigate("/home", { replace: true });
+      // O AuthContext vai redirecionar automaticamente!
       
     } catch (error) {
       console.error("Erro no login:", error);
