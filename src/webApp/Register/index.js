@@ -1,6 +1,10 @@
 import { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
+// Importe as instâncias do auth e db do arquivo de configuração
+import { auth, db } from "../../firebase/config";
 import StandardButton from "components/common/StandardButton";
 import StandardInput from "components/common/StandardInput";
 import H2 from "components/common/text/H2";
@@ -10,17 +14,14 @@ import ErrorAlert from "components/common/alerts/ErrorAlert";
 
 function Register() {
     const [isRegulamentoAceito, setIsRegulamentoAceito] = useState(false);
-
-    // Estados para os campos
     const [username, setUsername] = useState("");
     const [fullName, setFullName] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    // Estados para mensagens
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,50 +31,51 @@ function Register() {
             return;
         }
 
-        const userData = {
-            username,
-            fullName,
-            phone,
-            email,
-            password,
-        };
-
         try {
-            const apiUrl = process.env.REACT_APP_API_URL || "https://uniloc.vercel.app";
-            const response = await axios.post(`${apiUrl}/api/signup`, userData);
+            // Cria usuário com Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            
+            // Salva os dados adicionais no Firestore com data/hora de criação
+            const userData = { 
+                username, 
+                fullName, 
+                phone, 
+                email, 
+                role: 'user',
+                createdAt: new Date(), // Data e hora atual
+                createdAtTimestamp: new Date().toISOString() // Timestamp em formato ISO
+            };
+            
+            await setDoc(doc(db, "users", userCredential.user.uid), userData);
 
-            // Se chegou aqui, deu certo
             setErrorMessage("");
-            setSuccessMessage(response.data.message || "Registro realizado com sucesso!");
+            setSuccessMessage("Registro realizado com sucesso!");
 
             // Redireciona após 2 segundos
             setTimeout(() => {
-                window.location.href = "/login";
+                navigate("/login");
             }, 2000);
 
         } catch (error) {
-            console.error("DEBUG: Objeto de erro completo:", error);
-
-            let errorMessage = "Ocorreu um erro de rede. Verifique a sua conexão e tente novamente.";
-            if (error.response && error.response.data) {
-                if (typeof error.response.data.error === "string") {
-                    errorMessage = error.response.data.error;
-                } else {
-                    errorMessage = JSON.stringify(error.response.data);
-                }
-            } else if (error.message) {
-                errorMessage = error.message;
+            console.error("Erro no cadastro:", error);
+            
+            let errorMessage = "Erro ao criar conta. Tente novamente.";
+            
+            if (error.code === 'auth/email-already-in-use') {
+                errorMessage = "Este email já está em uso.";
+            } else if (error.code === 'auth/weak-password') {
+                errorMessage = "A senha deve ter pelo menos 6 caracteres.";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "Email inválido.";
             }
-
-            console.error("Erro no cadastro:", errorMessage);
+            
             setSuccessMessage("");
-            setErrorMessage("Falha no cadastro: " + errorMessage);
+            setErrorMessage(errorMessage);
         }
     };
 
     return (
         <div>
-            {/* Exibe erro ou sucesso condicionalmente */}
             {errorMessage && <ErrorAlert message={errorMessage} />}
             {successMessage && <ErrorAlert message={successMessage} />} 
 
@@ -121,6 +123,7 @@ function Register() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={6}
                 />
 
                 <div className={styles.regulamentoContainer}>
@@ -152,9 +155,7 @@ function Register() {
                 />
                 <SecondaryButton
                     label="Já tem uma conta? Faça login!"
-                    onClick={() => {
-                        window.location.href = "/login";
-                    }}
+                    onClick={() => navigate("/login")}
                     disabled={false}
                 />
             </form>

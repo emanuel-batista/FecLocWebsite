@@ -1,13 +1,14 @@
-// webApp/Login/index.js (Versão Atualizada com MUI)
-
-import React, { useState, useEffect } from 'react';
+// webApp/Login/index.js
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  setPersistence,
+
+// Importe do arquivo de configuração dentro de src
+import { auth } from '../../firebase/config';
+import { 
+  signInWithEmailAndPassword, 
+  setPersistence, 
   browserLocalPersistence,
-  onAuthStateChanged
+  onAuthStateChanged 
 } from 'firebase/auth';
 
 // Importações do Material-UI
@@ -28,22 +29,25 @@ function Login() {
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState("");
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
     const navigate = useNavigate();
+    const isMounted = useRef(true);
 
-    // --> Verifica se o usuário já está autenticado
     useEffect(() => {
-        const auth = getAuth();
-        
         const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (!isMounted.current) return;
+            
             setIsCheckingAuth(false);
             if (user) {
-                // Usuário já está logado, redireciona para Home
-                navigate("/home");
+                console.log('Usuário já autenticado, redirecionando...');
+                navigate("/home", { replace: true });
             }
         });
 
-        // Cleanup function
-        return () => unsubscribe();
+        return () => {
+            isMounted.current = false;
+            unsubscribe();
+        };
     }, [navigate]);
 
     const handleEmailChange = (e) => {
@@ -58,25 +62,48 @@ function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        
+        if (isLoggingIn) return;
+        
         if (emailError || !email || !password) {
             alert("Por favor, preencha os campos corretamente.");
             return;
         }
 
-        const auth = getAuth();
+        setIsLoggingIn(true);
 
         try {
             await setPersistence(auth, browserLocalPersistence);
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            
+            if (!isMounted.current) return;
+            
+            console.log('Login bem-sucedido, redirecionando...');
             alert(`Login bem-sucedido para ${userCredential.user.email}`);
-            navigate("/home");
+            navigate("/home", { replace: true });
+            
         } catch (error) {
+            if (!isMounted.current) return;
+            
             console.error("Erro no login:", error);
-            alert("Falha no login: Verifique seu email e senha.");
+            let errorMessage = "Falha no login: Verifique seu email e senha.";
+            
+            if (error.code === 'auth/too-many-requests') {
+                errorMessage = "Muitas tentativas de login. Tente novamente mais tarde.";
+            } else if (error.code === 'auth/user-not-found') {
+                errorMessage = "Usuário não encontrado.";
+            } else if (error.code === 'auth/wrong-password') {
+                errorMessage = "Senha incorreta.";
+            }
+            
+            alert(errorMessage);
+        } finally {
+            if (isMounted.current) {
+                setIsLoggingIn(false);
+            }
         }
     };
 
-    // Mostra uma animação de loading enquanto verifica a autenticação
     if (isCheckingAuth) {
         return (
             <div id={styles.loginContainer}>
@@ -121,6 +148,7 @@ function Login() {
                     required
                     value={email}
                     onChange={handleEmailChange}
+                    disabled={isLoggingIn}
                 />
                 {emailError && <span style={{color: "red", marginTop: "5px"}}>{emailError}</span>}
                 <StandardInput
@@ -129,8 +157,13 @@ function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoggingIn}
                 />
-                <StandardButton label="Login" type="submit" />
+                <StandardButton 
+                    label={isLoggingIn ? "Entrando..." : "Login"} 
+                    type="submit" 
+                    disabled={isLoggingIn}
+                />
                 <p>Não tem uma conta?
                     <Link to="/register" className={styles.link}>
                         Cadastre-se

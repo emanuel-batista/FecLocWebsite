@@ -7,8 +7,11 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+
+// Importe do arquivo de configuração dentro de src
+import { auth } from '../../firebase/config';
+import { signOut } from 'firebase/auth';
 
 function SearchBar() {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -25,7 +28,7 @@ function SearchBar() {
 
     const handleLogout = async () => {
         try {
-            const auth = getAuth();
+            // Use a instância do auth importada do arquivo de configuração
             await signOut(auth);
             navigate('/');
             handleClose();
