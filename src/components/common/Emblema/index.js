@@ -1,7 +1,7 @@
 // src/components/common/Emblema/index.js
 
 import React from 'react';
-import styles from './Emblema.module.css';
+import styles from "./Emblema.module.css";
 
 /**
  * Componente que renderiza um emblema redondo com o nome do curso.
