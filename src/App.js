@@ -19,6 +19,7 @@ import AdminQuizzes from './webApp/AdminPanel/Quizzes';
 import CriarCurso from './webApp/AdminPanel/Quizzes/CriarCurso'; // <-- NOVO
 import CadastrarPergunta from './webApp/AdminPanel/Quizzes/CadastrarPergunta'; // <-- NOVO
 import Unidade from './webApp/HomeAlternative/Unidade';
+import Curso from './webApp/HomeAlternative/Curso';
 
 function App() {
   return (
@@ -41,6 +42,8 @@ function App() {
         {/* --- NOVA ROTA DO QUIZ --- */}
         <Route path="/quiz/responder/:quizId" element={<ProtectedRoute> <Quiz /> </ProtectedRoute>} />
         <Route path="/unidade/:unidadeId" element={<ProtectedRoute> <Unidade /> </ProtectedRoute>} />
+
+          <Route path="/curso/:cursoId" element={ <ProtectedRoute> <Curso /> </ProtectedRoute> } />
         {/* =================================================== */}
         {/* === ROTAS PROTEGIDAS APENAS PARA ADMINISTRADORES === */}
         {/* =================================================== */}

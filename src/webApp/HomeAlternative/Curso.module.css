@@ -1,0 +1,25 @@
+/* src/webApp/HomeAlternative/Curso.module.css */
+
+.cursoContainer {
+  min-height: 100vh;
+  background-color: #F2F2F2; /* Cor de fundo solicitada */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+.content h1 {
+  color: #333; /* Cor escura para contrastar com o fundo claro */
+  font-weight: 700;
+  font-size: 3.5rem;
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 600px) {
+  .content h1 {
+    font-size: 2.5rem;
+  }
+}
