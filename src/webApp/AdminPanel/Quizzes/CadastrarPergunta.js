@@ -112,7 +112,9 @@ function CadastrarPergunta() {
             ))}
           </RadioGroup>
         </FormControl>
-        <Box sx={{ mt: 2 }}><Button type="submit" variant="contained" disabled={loading}>{loading ? 'Salvando...' : 'Salvar Pergunta'}</Button></Box>
+        <Box sx={{ mt: 2 }}><Button type="submit" variant="contained" disabled={loading}>{loading ? 'Salvando...' : 'Salvar Pergunta'}</Button>
+        
+        </Box>
       </Paper>
 
       <Typography variant="h5" gutterBottom>Perguntas já cadastradas</Typography>
