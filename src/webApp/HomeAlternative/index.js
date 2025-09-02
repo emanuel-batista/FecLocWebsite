@@ -6,6 +6,7 @@ import PlaceCard from 'components/HomeAlternative/PlaceCard';
 import styles from "./hAlternative.module.css";
 import SearchBar from "components/HomeAlternative/SearchBar";
 import { CircularProgress, Box } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 function HomeAlternative() {
   const [unidades, setUnidades] = useState([]);
@@ -47,11 +48,12 @@ function HomeAlternative() {
       ) : (
         <div className={styles.hAlternative}>
           {unidades.map(unidade => (
-            <PlaceCard 
-              key={unidade.id}
-              backgroundImage={unidade.fotoUrl} 
-              standName={unidade.nome} 
-            />
+            <Link to={`/unidade/${unidade.id}`} key={unidade.id} className={styles.placeCardLink}>
+              <PlaceCard 
+                backgroundImage={unidade.fotoUrl} 
+                standName={unidade.nome} 
+              />
+            </Link>
           ))}
         </div>
       )}

@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import './App.css'; 
+import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/Sobre/SobrePage';
@@ -32,26 +32,26 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         {/* === Rota Protegida para Utilizadores Comuns === */}
-        <Route 
-          path="/home" 
-          element={ <ProtectedRoute> <HomeApp /> </ProtectedRoute> } 
+        <Route
+          path="/home"
+          element={<ProtectedRoute> <HomeApp /> </ProtectedRoute>}
         />
 
         {/* --- NOVA ROTA DO QUIZ --- */}
-        <Route path="/quiz/responder/:quizId" element={ <ProtectedRoute> <Quiz /> </ProtectedRoute> } />
-
+        <Route path="/quiz/responder/:quizId" element={<ProtectedRoute> <Quiz /> </ProtectedRoute>} />
+        <Route path="/unidade/:unidadeId" element={<ProtectedRoute> <Unidade /> </ProtectedRoute>} />
         {/* =================================================== */}
         {/* === ROTAS PROTEGIDAS APENAS PARA ADMINISTRADORES === */}
         {/* =================================================== */}
-        
-        <Route path="/admin" element={ <ProtectedRoute adminOnly={true}> <AdminPanel /> </ProtectedRoute> } />
-        <Route path="/admin/users" element={ <ProtectedRoute adminOnly={true}> <AdminUsers /> </ProtectedRoute> } />
-        <Route path="/admin/unidades" element={ <ProtectedRoute adminOnly={true}> <AdminUnidades /> </ProtectedRoute> } />
-        
+
+        <Route path="/admin" element={<ProtectedRoute adminOnly={true}> <AdminPanel /> </ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute adminOnly={true}> <AdminUsers /> </ProtectedRoute>} />
+        <Route path="/admin/unidades" element={<ProtectedRoute adminOnly={true}> <AdminUnidades /> </ProtectedRoute>} />
+
         {/* --- NOVAS ROTAS DE QUIZZES --- */}
-        <Route path="/admin/quizzes" element={ <ProtectedRoute adminOnly={true}> <AdminQuizzes /> </ProtectedRoute> } />
-        <Route path="/admin/quizzes/criar-curso" element={ <ProtectedRoute adminOnly={true}> <CriarCurso /> </ProtectedRoute> } />
-        <Route path="/admin/quizzes/cadastrar-pergunta/:cursoId" element={ <ProtectedRoute adminOnly={true}> <CadastrarPergunta /> </ProtectedRoute> } />
+        <Route path="/admin/quizzes" element={<ProtectedRoute adminOnly={true}> <AdminQuizzes /> </ProtectedRoute>} />
+        <Route path="/admin/quizzes/criar-curso" element={<ProtectedRoute adminOnly={true}> <CriarCurso /> </ProtectedRoute>} />
+        <Route path="/admin/quizzes/cadastrar-pergunta/:cursoId" element={<ProtectedRoute adminOnly={true}> <CadastrarPergunta /> </ProtectedRoute>} />
       </Routes>
     </Router>
   );

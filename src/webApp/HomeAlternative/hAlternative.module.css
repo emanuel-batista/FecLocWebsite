@@ -23,3 +23,8 @@
     margin-bottom: 10px;
 
 }
+
+.placeCardLink {
+  text-decoration: none;
+  color: inherit;
+}

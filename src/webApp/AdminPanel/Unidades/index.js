@@ -17,6 +17,7 @@ import {
 function AdminUnidades() {
   const [nome, setNome] = useState('');
   const [fotoUrl, setFotoUrl] = useState('');
+  const [localizacaoUrl, setLocalizacaoUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [listLoading, setListLoading] = useState(true);
   const [unidades, setUnidades] = useState([]);
@@ -46,7 +47,7 @@ function AdminUnidades() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!nome || !fotoUrl) {
+    if (!nome || !fotoUrl || !localizacaoUrl) {
       showAlert('Por favor, preencha todos os campos.', 'warning');
       return;
     }
@@ -56,14 +57,14 @@ function AdminUnidades() {
       await addDoc(collection(db, "unidades"), {
         nome: nome,
         fotoUrl: fotoUrl,
+        localizacaoUrl: localizacaoUrl, // <-- SALVA O NOVO CAMPO
         criadoEm: new Date()
       });
       showAlert('Unidade cadastrada com sucesso!', 'success');
       setNome('');
       setFotoUrl('');
-      // Para atualizar a lista, podemos simplesmente recarregar a página
-      // ou implementar uma lógica de state mais complexa. Recarregar é mais simples.
-      window.location.reload(); 
+      setLocalizacaoUrl(''); // <-- LIMPA O NOVO CAMPO
+      fetchUnidades();
     } catch (error) {
       console.error("Erro ao cadastrar unidade: ", error);
       showAlert('Erro ao cadastrar unidade.', 'error');
@@ -101,6 +102,14 @@ function AdminUnidades() {
           margin="normal"
           value={fotoUrl}
           onChange={(e) => setFotoUrl(e.target.value)}
+        />
+        <TextField
+          label="URL de Localização do Google Maps"
+          fullWidth
+          margin="normal"
+          value={localizacaoUrl}
+          onChange={(e) => setLocalizacaoUrl(e.target.value)}
+          helperText="No Google Maps, clique em 'Compartilhar' e 'Copiar link'"
         />
         <Box sx={{ mt: 2, position: 'relative' }}>
           <Button type="submit" variant="contained" disabled={loading}>
