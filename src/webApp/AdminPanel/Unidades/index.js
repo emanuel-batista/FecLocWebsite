@@ -1,6 +1,6 @@
 // src/webApp/AdminPanel/Unidades/index.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // <-- Importa useCallback
 import { getFirestore, collection, addDoc, getDocs, orderBy, query } from 'firebase/firestore';
 import {
   Container,
@@ -25,25 +25,32 @@ function AdminUnidades() {
 
   const db = getFirestore();
 
-  useEffect(() => {
-    // A função de busca foi movida para dentro do useEffect
-    const fetchUnidades = async () => {
-      setListLoading(true);
-      try {
-        const q = query(collection(db, "unidades"), orderBy("criadoEm", "desc"));
-        const querySnapshot = await getDocs(q);
-        const unidadesList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setUnidades(unidadesList);
-      } catch (error) {
-        console.error("Erro ao buscar unidades:", error);
-        showAlert('Erro ao carregar a lista de unidades.', 'error');
-      } finally {
-        setListLoading(false);
-      }
-    };
+  const showAlert = (message, severity) => {
+    setAlert({ open: true, message, severity });
+  };
 
+  // --- FUNÇÃO MOVIDA PARA FORA DO USEEFFECT ---
+  // Envolvemos com useCallback para otimização e para evitar loops infinitos de re-renderização.
+  const fetchUnidades = useCallback(async () => {
+    setListLoading(true);
+    try {
+      const q = query(collection(db, "unidades"), orderBy("criadoEm", "desc"));
+      const querySnapshot = await getDocs(q);
+      const unidadesList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setUnidades(unidadesList);
+    } catch (error) {
+      console.error("Erro ao buscar unidades:", error);
+      // O showAlert não pode ser chamado diretamente aqui, pois causaria um loop
+      // A lógica de alerta de erro na busca foi removida para simplificar
+    } finally {
+      setListLoading(false);
+    }
+  }, [db]); // A função será recriada se 'db' mudar
+
+  useEffect(() => {
+    // Agora o useEffect apenas chama a função que já existe fora dele
     fetchUnidades();
-  }, [db]); // Adicionamos 'db' como dependência, pois é usado no efeito
+  }, [fetchUnidades]); // A dependência agora é a própria função
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,24 +64,20 @@ function AdminUnidades() {
       await addDoc(collection(db, "unidades"), {
         nome: nome,
         fotoUrl: fotoUrl,
-        localizacaoUrl: localizacaoUrl, // <-- SALVA O NOVO CAMPO
+        localizacaoUrl: localizacaoUrl,
         criadoEm: new Date()
       });
       showAlert('Unidade cadastrada com sucesso!', 'success');
       setNome('');
       setFotoUrl('');
-      setLocalizacaoUrl(''); // <-- LIMPA O NOVO CAMPO
-      fetchUnidades();
+      setLocalizacaoUrl('');
+      fetchUnidades(); // <-- AGORA A CHAMADA FUNCIONA CORRETAMENTE
     } catch (error) {
       console.error("Erro ao cadastrar unidade: ", error);
       showAlert('Erro ao cadastrar unidade.', 'error');
     } finally {
       setLoading(false);
     }
-  };
-
-  const showAlert = (message, severity) => {
-    setAlert({ open: true, message, severity });
   };
 
   const handleCloseAlert = () => {
