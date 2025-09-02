@@ -1,7 +1,7 @@
 // src/webApp/Register/index.js
 
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Adicionado Link para navegação
+import { useNavigate } from "react-router-dom"; // Adicionado Link para navegação
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
