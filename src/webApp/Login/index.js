@@ -1,5 +1,5 @@
-// webApp/Login/index.js - Versão Corrigida
-import React, { useState } from 'react';
+// Login.js - Versão Corrigida
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { 
@@ -24,7 +24,24 @@ function Login() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
   const navigate = useNavigate();
-  const [hasLoggedIn, setHasLoggedIn] = useState(false);
+  const [hasLoggedIn, setHasLoggedIn] = useState(() => {
+    // Inicializa com o valor do localStorage
+    return localStorage.getItem('hasLoggedIn') === 'true';
+  });
+
+  useEffect(() => {
+    // Limpa o estado de login quando o componente é montado
+    const checkAuthState = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        // Se não há usuário autenticado, permite login novamente
+        setHasLoggedIn(false);
+        localStorage.removeItem('hasLoggedIn');
+      }
+    };
+
+    checkAuthState();
+  }, []);
 
   const showAlert = (message, severity = 'error') => {
     setAlert({ open: true, message, severity });
@@ -52,10 +69,10 @@ function Login() {
 
     setIsLoggingIn(true);
     setHasLoggedIn(true);
+    localStorage.setItem('hasLoggedIn', 'true'); // ← Salva no localStorage
 
     try {
       await setPersistence(auth, browserLocalPersistence);
-      // Removida a variável não utilizada userCredential
       await signInWithEmailAndPassword(auth, email, password);
       
       console.log('Login bem-sucedido, redirecionando...');
@@ -82,6 +99,7 @@ function Login() {
       
       showAlert(errorMessage);
       setHasLoggedIn(false);
+      localStorage.removeItem('hasLoggedIn'); // ← Remove em caso de erro
     } finally {
       setIsLoggingIn(false);
     }

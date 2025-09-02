@@ -22,13 +22,20 @@ function HomeAlternative() {
         setAlert({ ...alert, open: false });
     };
 
+    // HomeAlternative.js - Adicione esta função
     const handleLogout = async () => {
         try {
             await signOut(auth);
             showAlert("Logout realizado com sucesso!", "success");
+
+            // Limpa qualquer estado persistente do localStorage
+            localStorage.removeItem('hasLoggedIn');
+
             // Redireciona após um breve delay para mostrar o alerta
             setTimeout(() => {
                 navigate("/", { replace: true });
+                // Força um reload completo para limpar o estado da aplicação
+                window.location.reload();
             }, 1500);
         } catch (error) {
             console.error("Erro no logout:", error);
@@ -47,20 +54,20 @@ function HomeAlternative() {
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
                 <PlaceCard backgroundImage={cardniteImg} standName={'Nite'} />
             </div>
-            
+
             {/* logout button */}
             <button onClick={handleLogout} className={styles.logoutButton}>
                 Logout
             </button>
 
-            <Snackbar 
-                open={alert.open} 
-                autoHideDuration={4000} 
+            <Snackbar
+                open={alert.open}
+                autoHideDuration={4000}
                 onClose={handleCloseAlert}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={handleCloseAlert} 
+                <Alert
+                    onClose={handleCloseAlert}
                     severity={alert.severity}
                     sx={{ width: '100%' }}
                 >
