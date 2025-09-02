@@ -1,51 +1,60 @@
-.homepage{
-    background-color: rgb(56, 56, 56);
-    background-position: top;
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100vh;
+.homepage {
+    position: relative;
     width: 100vw;
-
+    height: 100vh;
+    overflow: hidden;
     display: flex;
-    flex-direction: row-r;
-    align-items: center;
-    justify-content: space-around;
-    
-}
-
-.container{
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
-.downloads{
+
+.backgroundVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 101%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(0.4);
+}
+
+.content {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.13);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6.6px);
+    -webkit-backdrop-filter: blur(6.6px);
+    border: 1px solid rgba(255, 255, 255, 0.54);
+    padding: 16px;
+    height: 20vh;
 }
 
-.badgeplay{
-    width: 200px;
-    /* image responsivity */
-    height: 100px;
-    margin: 0 10px;
-    /* image fit */
-    object-fit: contain;
-
+.content span{
+    color: #F2F2F2;
+    font-size: 16px;
 }
 
-h1{
-    font-size: 24px;
+.content a{
+    color: #F2F2F2;
+    text-decoration: none;
     font-weight: bold;
-    color: rgb(243, 243, 243);
-}
+    background-color: #014195;
+    display: flex;              /* Add this */
+    align-items: center;        /* Add this */
+    justify-content: center;    /* Add this */
+    padding: 5px 10px;         /* Optional: for better button look */
+    border-radius: 110px;         /* Optional: rounded corners */
+    gap: 8px;                   /* Optional: space between text and icon */
 
-.printApp{
-    width: 200px;
-    height: auto;
-    margin-top: 20px;
 }
-
-.fec{
-    color: #014195
+@media screen and (max-width: 768px) {
+    .content{
+        height: 15vh;
+    }
 }

@@ -1,19 +1,25 @@
+import { Logo } from "assets";
 import styles from "./HomePage.module.css";
-import googleBadge from "../../assets/google-badge.webp";
-import aplleBadge from "../../assets/apple-badge.webp";
-import printApp from "../../assets/print-app.jpg";
+import { ArrowOutward } from "@mui/icons-material"
+
 
 
 function HomePage() {
     return (
         <div className={styles.homepage}>
-            <div className={styles.container}>
-                <h1 className={styles.title}>Fecloc: o aplicativo de localização da <span className={styles.fec}>Fec!</span></h1>
-                <div className={styles.downloads}>
-                    <img src={googleBadge} alt="Download no Google Play Store" className={styles.badgeplay}/>
-                </div>
+            <video
+                className={styles.backgroundVideo}
+                autoPlay
+                src="https://www.pexels.com/download/video/3252649/"
+                muted
+                loop
+            />
+            <div className={styles.content}>
+                <Logo />
+                <span>O aplicativo de localização da FEC!</span>
+                <a href="/login" className={styles.CTA}>USE AGORA TOTALMENTE ONLINE <ArrowOutward /></a>
             </div>
-            <img src={printApp} alt="Aplicativo Fecloc" className={styles.printApp}/>
+
         </div>
     );
 }
