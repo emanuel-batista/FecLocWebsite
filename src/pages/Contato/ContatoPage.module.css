@@ -1,6 +1,6 @@
 .contatoPage {
     background-color: rgb(56, 56, 56);
-    min-height: 100vh;
+    /* min-height: 100vh; -> REMOVA ESTA LINHA */
     width: 100vw;
 
     display: flex;

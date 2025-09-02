@@ -1,12 +1,10 @@
-// App.js - Versão Simplificada
+// App.js - Versão Modificada
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import './App.css'; 
 import Navbar from './components/Navbar/Navbar';
-import HomePage from './pages/HomePage/HomePage';
-import SobrePage from './pages/Sobre/SobrePage';
-import ContatoPage from './pages/Contato/ContatoPage';
+import LandingPage from './pages/LandingPage'; // 1. Importe a nova página
 import Login from './webApp/Login/';
 import Register from './webApp/Register';
 import HomeApp from './webApp/HomeAlternative';
@@ -18,9 +16,7 @@ function App() {
         <Navbar />
         <Routes>
           {/* Rotas Públicas */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/sobre" element={<SobrePage />} />
-          <Route path="/contato" element={<ContatoPage />} />
+          <Route path="/" element={<LandingPage />} /> {/* 2. Use a LandingPage para a rota principal */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 

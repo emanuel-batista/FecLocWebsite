@@ -1,7 +1,7 @@
 .homepage {
     position: relative;
     width: 100vw;
-    height: 100vh;
+    height: 100vh; /* Mantém a primeira seção ocupando a tela inteira */
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -9,7 +9,7 @@
 }
 
 .backgroundVideo {
-    position: fixed;
+    position: fixed; /* Mantém o vídeo fixo no fundo */
     top: 0;
     left: 0;
     width: 100%;
