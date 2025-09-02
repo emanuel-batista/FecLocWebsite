@@ -18,7 +18,7 @@ import AdminUnidades from './webApp/AdminPanel/Unidades';
 import AdminQuizzes from './webApp/AdminPanel/Quizzes';
 import CriarCurso from './webApp/AdminPanel/Quizzes/CriarCurso'; // <-- NOVO
 import CadastrarPergunta from './webApp/AdminPanel/Quizzes/CadastrarPergunta'; // <-- NOVO
-import Unidade from './webApp/Unidade';
+import Unidade from './webApp/HomeAlternative/Unidade';
 
 function App() {
   return (
