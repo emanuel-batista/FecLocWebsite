@@ -10,7 +10,7 @@ import ContatoPage from './pages/Contato/ContatoPage';
 import Login from './webApp/Login/';
 import Register from './webApp/Register';
 import HomeApp from './webApp/HomeAlternative';
-
+import Quiz from './webApp/Quiz';
 // --- IMPORTS ATUALIZADOS ---
 import AdminPanel from './webApp/AdminPanel';
 import AdminUsers from './webApp/AdminPanel/Users';
