@@ -1,94 +1,90 @@
 // src/webApp/Escanear/index.js
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Container, Typography, Box, Paper, Alert, Button, CircularProgress } from '@mui/material';
+import { Container, Typography, Box, Paper, Alert, CircularProgress, Button } from '@mui/material';
 import styles from './Escanear.module.css';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import SwitchCameraIcon from '@mui/icons-material/SwitchCamera';
 
 function Escanear() {
   const [error, setError] = useState(null);
-  const [scanResult, setScanResult] = useState(null);
-  const navigate = useNavigate();
-  
-  // States para gerir o scanner
-  const [isScannerActive, setIsScannerActive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [cameras, setCameras] = useState([]);
-  const [activeCameraIndex, setActiveCameraIndex] = useState(0);
-
+  const [activeCameraId, setActiveCameraId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Estado de carregamento
+  const navigate = useNavigate();
   const scannerRef = useRef(null);
 
-  // Função que inicia o processo de escaneamento
-  const handleStartScanner = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    const scannerElementId = "qr-reader";
-    
-    // Cria a instância do scanner se ainda não existir
-    if (!scannerRef.current) {
-      scannerRef.current = new Html5Qrcode(scannerElementId, false);
+  // Função de sucesso ao escanear
+  const onScanSuccess = useCallback((decodedText) => {
+    if (scannerRef.current && scannerRef.current.isScanning) {
+      scannerRef.current.stop();
     }
-    const html5QrCode = scannerRef.current;
-
-    // Para qualquer scanner que já esteja a funcionar
-    if (html5QrCode && html5QrCode.isScanning) {
-      await html5QrCode.stop();
-    }
-
     try {
-      // Pede a lista de câmaras (isto também pede a permissão)
-      if (cameras.length === 0) {
-        const devices = await Html5Qrcode.getCameras();
+      const url = new URL(decodedText);
+      navigate(url.pathname);
+    } catch (err) {
+      setError('QR Code inválido. Por favor, escaneie o código correto.');
+    }
+  }, [navigate]);
+
+  // Efeito principal para configurar o scanner
+  useEffect(() => {
+    scannerRef.current = new Html5Qrcode("qr-reader", false);
+    
+    Html5Qrcode.getCameras()
+      .then(devices => {
         if (devices && devices.length) {
           setCameras(devices);
-          // Tenta pré-selecionar a câmara traseira
-          const rearCameraIndex = devices.findIndex(d => d.label.toLowerCase().includes('back'));
-          setActiveCameraIndex(rearCameraIndex !== -1 ? rearCameraIndex : 0);
+          const rearCamera = devices.find(d => d.label.toLowerCase().includes('back'));
+          setActiveCameraId(rearCamera ? rearCamera.id : devices[0].id);
         } else {
-          setError("Nenhuma câmara encontrada.");
-          setIsLoading(false);
-          return;
+          setError("Nenhuma câmera encontrada.");
+          setIsLoading(false); // CORREÇÃO: Garante que o loading para
         }
-      }
+      })
+      .catch(err => {
+        setError("Não foi possível aceder às câmeras. Verifique as permissões.");
+        setIsLoading(false); // CORREÇÃO: Garante que o loading para
+      });
 
-      // Inicia a câmara selecionada
-      const cameraId = cameras[activeCameraIndex]?.id;
-      if (cameraId) {
-        html5QrCode.start(
-          cameraId,
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          (decodedText) => {
-            // Sucesso na leitura
-            if (!scanResult) { // Evita múltiplos redirecionamentos
-              setScanResult(decodedText);
-              html5QrCode.stop();
-              try {
-                const url = new URL(decodedText);
-                navigate(url.pathname);
-              } catch (err) {
-                setError('QR Code inválido.');
-              }
-            }
-          },
-          (errorMessage) => { /* ignora erros */ }
-        ).then(() => {
-          setIsScannerActive(true);
-        });
+    // Função de limpeza
+    return () => {
+      if (scannerRef.current && scannerRef.current.isScanning) {
+        scannerRef.current.stop();
       }
-    } catch (err) {
-      setError("Permissão da câmara negada. Por favor, autorize o acesso nas configurações do seu navegador.");
-    } finally {
-      setIsLoading(false);
+    };
+  }, []);
+
+  // Efeito para iniciar/parar o scanner quando a câmara ativa muda
+  useEffect(() => {
+    if (activeCameraId && scannerRef.current) {
+      // Para o scanner atual antes de iniciar um novo
+      if (scannerRef.current.isScanning) {
+        scannerRef.current.stop();
+      }
+      
+      setIsLoading(true); // Mostra o loading ao trocar de câmara
+      scannerRef.current.start(
+        activeCameraId,
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        (errorMessage) => { /* ignora erros */ }
+      ).then(() => {
+        setIsLoading(false); // Para o loading quando a câmara inicia
+      }).catch(err => {
+        setError("Erro ao iniciar a câmera. Tente outra ou verifique as permissões.");
+        setIsLoading(false); // CORREÇÃO: Garante que o loading para
+      });
     }
-  }, [cameras, activeCameraIndex, scanResult, navigate]);
+  }, [activeCameraId, onScanSuccess]);
 
+  // Função para trocar de câmara
   const handleCameraSwitch = () => {
     if (cameras.length > 1) {
-      const nextIndex = (activeCameraIndex + 1) % cameras.length;
-      setActiveCameraIndex(nextIndex);
+      const currentIndex = cameras.findIndex(c => c.id === activeCameraId);
+      const nextIndex = (currentIndex + 1) % cameras.length;
+      setActiveCameraId(cameras[nextIndex].id);
     }
   };
 
@@ -99,46 +95,25 @@ function Escanear() {
           Escanear QR Code
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-          Clique no botão abaixo para abrir a sua câmara e aponte para o QR Code.
+          Aponte a sua câmera para o QR Code do stand para iniciar o quiz.
         </Typography>
 
-        {/* O div para o vídeo agora fica dentro de um contêiner que pode ser escondido */}
-        <Box className={styles.videoContainer} sx={{ display: isScannerActive ? 'block' : 'none' }}>
-          <Box id="qr-reader" className={styles.videoWrapper} />
+        {/* O spinner agora é controlado pelo novo estado isLoading */}
+        <Box id="qr-reader" className={styles.videoWrapper}>
+            {isLoading && <CircularProgress />}
         </Box>
 
-        {/* Mensagem inicial para guiar o utilizador */}
-        {!isScannerActive && !isLoading && (
-          <Box className={styles.placeholder}>
-            <CameraAltIcon sx={{ fontSize: 60, color: '#ccc' }} />
-            <Typography color="text.secondary">A sua câmara aparecerá aqui</Typography>
-          </Box>
-        )}
-        
-        {/* Mostra o spinner apenas quando está a carregar */}
-        {isLoading && <CircularProgress sx={{ my: 4 }} />}
-
-        {/* Botão de controlo principal */}
-        <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
+        {cameras.length > 1 && (
           <Button
             variant="contained"
-            onClick={handleStartScanner}
+            startIcon={<SwitchCameraIcon />}
+            onClick={handleCameraSwitch}
+            sx={{ mt: 2 }}
             disabled={isLoading}
-            startIcon={<CameraAltIcon />}
           >
-            {isScannerActive ? "Reiniciar Câmara" : "Abrir Câmara"}
+            Trocar Câmera
           </Button>
-
-          {isScannerActive && cameras.length > 1 && (
-            <Button
-              variant="outlined"
-              onClick={handleCameraSwitch}
-              startIcon={<SwitchCameraIcon />}
-            >
-              Trocar
-            </Button>
-          )}
-        </Box>
+        )}
 
         {error && (
           <Alert severity="error" sx={{ mt: 3, width: '100%' }}>
