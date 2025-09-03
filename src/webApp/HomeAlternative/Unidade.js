@@ -1,7 +1,7 @@
 // src/webApp/HomeAlternative/Unidade.js
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom'; // <-- Importa o Link
 import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { 
   Container, 
@@ -36,6 +36,7 @@ function Unidade() {
 
         const cursosQuery = query(collection(db, 'cursos'), where('unidadeId', '==', unidadeId));
         const cursosSnapshot = await getDocs(cursosQuery);
+        // ATUALIZAÇÃO: Captura o ID do curso para usar no link
         setCursos(cursosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       } catch (error) {
         console.error("Erro ao buscar dados da unidade:", error);
@@ -65,14 +66,6 @@ function Unidade() {
             {unidade.nome}
           </Typography>
           
-          {/* --- EXIBE A DESCRIÇÃO SE ELA EXISTIR --- */}
-          {unidade.descricao && (
-            <Typography variant="h5" component="p" sx={{ fontFamily: 'Roboto', mb: 4, fontWeight: 300 }}>
-              {unidade.descricao}
-            </Typography>
-          )}
-          {/* ------------------------------------- */}
-          
           <Paper sx={{ p: 3, my: 4, backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '16px' }}>
             <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Roboto', fontWeight: 500, color: '#333' }}>
               Cursos com Stand nesta Unidade:
@@ -81,6 +74,7 @@ function Unidade() {
             <List>
               {cursos.length > 0 ? (
                 cursos.map((curso) => (
+                  // --- ATUALIZAÇÃO: ListItem agora é um Link clicável ---
                   <ListItem 
                     button 
                     component={Link} 
@@ -92,6 +86,7 @@ function Unidade() {
                       primaryTypographyProps={{ fontFamily: 'Roboto', fontWeight: 'bold', color: '#111' }} 
                     />
                   </ListItem>
+                  // --------------------------------------------------
                 ))
               ) : (
                 <ListItem>

@@ -58,6 +58,13 @@ function Curso() {
           {curso.nome}
         </Typography>
         
+        {/* --- EXIBE A DESCRIÇÃO DO CURSO SE ELA EXISTIR --- */}
+        {curso.descricao && (
+          <Typography variant="h6" component="p" sx={{ fontFamily: 'Roboto', fontWeight: 300, mt: -2, mb: 4, fontStyle: 'italic' }}>
+            {curso.descricao}
+          </Typography>
+        )}
+        
         <Paper sx={{ p: 3, my: 4, borderRadius: '16px' }}>
           <Typography variant="h5" sx={{ fontFamily: 'Roboto', fontWeight: 500 }}>
             Localização
