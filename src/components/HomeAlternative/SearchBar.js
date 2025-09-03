@@ -19,7 +19,6 @@ function SearchBar() {
     const [searchTerm, setSearchTerm] = useState('');
     const [allCursos, setAllCursos] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
-    const [isSuggestionsVisible, setIsSuggestionsVisible] = useState(false);
     const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
     const navigate = useNavigate();
     const isMenuOpen = Boolean(anchorEl);
@@ -39,16 +38,6 @@ function SearchBar() {
         fetchCursos();
     }, []);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
-                setIsSuggestionsVisible(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
@@ -57,23 +46,21 @@ function SearchBar() {
                 curso.nome && curso.nome.toLowerCase().includes(value.toLowerCase())
             );
             setSuggestions(filtered);
-            setIsSuggestionsVisible(true);
         } else {
             setSuggestions([]);
-            setIsSuggestionsVisible(false);
         }
     };
 
     const handleSuggestionClick = (cursoId) => {
         setSearchTerm('');
-        setIsSuggestionsVisible(false);
+        setSuggestions([]);
         navigate(`/curso/${cursoId}`);
     };
     
     const showAlert = (message, severity = 'info') => setAlert({ open: true, message, severity });
     const handleCloseAlert = () => setAlert({ ...alert, open: false });
     const handleAccountClick = (event) => setAnchorEl(event.currentTarget);
-    const handleMenuClose = () => setAnchorEl(null); // <-- A função correta
+    const handleMenuClose = () => setAnchorEl(null);
     const handleLogout = async () => {
         if (isLoggingOut) return;
         setIsLoggingOut(true);
@@ -101,7 +88,6 @@ function SearchBar() {
                         className={styles.input}
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        onFocus={() => { if (searchTerm) setIsSuggestionsVisible(true); }}
                     />
                     <AccountCircleIcon
                         className={styles.accountIcon}
@@ -110,7 +96,8 @@ function SearchBar() {
                     />
                 </div>
                 
-                {isSuggestionsVisible && (
+                {/* --- LÓGICA DE RENDERIZAÇÃO CORRIGIDA E SIMPLIFICADA --- */}
+                {searchTerm.length > 0 && (
                     <ul className={styles.suggestionsList}>
                         {suggestions.length > 0 ? (
                             suggestions.map(curso => (
@@ -129,12 +116,9 @@ function SearchBar() {
                 )}
             </div>
 
-            {/* O ERRO ESTAVA AQUI, no onClose */}
             <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenuClose}>
                 <MenuItem onClick={handleLogout} disabled={isLoggingOut}>
-                    <ListItemIcon>
-                        <LogoutIcon fontSize="small" color="error" />
-                    </ListItemIcon>
+                    <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
                     <ListItemText primary={isLoggingOut ? "Saindo..." : "Sair"} />
                 </MenuItem>
             </Menu>
