@@ -1,10 +1,11 @@
 /* src/webApp/Ranking/Ranking.module.css */
 
 .rankingContainer {
-  padding-top: 2rem;
-  padding-bottom: 4rem;
+  padding: 2rem 1rem 4rem 1rem; /* Adiciona padding lateral */
   text-align: center;
   font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9; /* Fundo levemente cinza para destacar o pódio */
+  min-height: 100vh;
 }
 
 .title {
@@ -18,6 +19,7 @@
   justify-content: center;
   align-items: flex-end;
   gap: 1rem;
+  flex-wrap: wrap; /* Permite que o pódio quebre a linha em telas pequenas */
 }
 
 .podiumPlace {
@@ -26,6 +28,11 @@
   align-items: center;
   width: 180px;
   position: relative;
+  transition: transform 0.3s ease;
+}
+
+.podiumPlace:hover {
+  transform: translateY(-10px); /* Efeito suave ao passar o mouse */
 }
 
 .avatar {
@@ -39,6 +46,10 @@
   margin-top: 0.5rem !important;
   font-weight: 500 !important;
   color: #111;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Adiciona "..." se o nome for muito grande */
 }
 
 .points {
@@ -56,13 +67,57 @@
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.first .podiumStep { background-color: #ffd700; height: 150px; }
-.second .podiumStep { background-color: #c0c0c0; height: 100px; }
-.third .podiumStep { background-color: #cd7f32; height: 70px; }
+.first .podiumStep { background: linear-gradient(145deg, #ffd700, #f0c000); height: 150px; }
+.second .podiumStep { background: linear-gradient(145deg, #e8e8e8, #a7a7a7); height: 100px; }
+.third .podiumStep { background: linear-gradient(145deg, #cd7f32, #a0522d); height: 70px; }
 
 .crown {
   width: 50px;
   position: absolute;
   top: -30px;
   z-index: 10;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); /* Sombra para a coroa */
+}
+
+/* ======================================= */
+/* === MEDIA QUERIES PARA RESPONSIVIDADE === */
+/* ======================================= */
+
+/* Para tablets e celulares grandes */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem !important;
+    margin-bottom: 2rem !important;
+  }
+  .podiumPlace {
+    width: 150px; /* Diminui um pouco os blocos */
+  }
+}
+
+/* Para celulares */
+@media (max-width: 500px) {
+  .podium {
+    flex-direction: column; /* Coloca o pódio na vertical */
+    align-items: center;
+    gap: 2rem;
+  }
+
+  /* Inverte a ordem para que o 1º lugar apareça no topo */
+  .first { order: 1; }
+  .second { order: 2; }
+  .third { order: 3; }
+
+  .podiumPlace {
+    width: 80%; /* Ocupa mais da largura da tela */
+  }
+
+  /* Reduz a altura dos degraus no mobile */
+  .first .podiumStep,
+  .second .podiumStep,
+  .third .podiumStep {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
