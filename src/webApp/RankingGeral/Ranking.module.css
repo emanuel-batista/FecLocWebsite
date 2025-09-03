@@ -1,0 +1,68 @@
+/* src/webApp/Ranking/Ranking.module.css */
+
+.rankingContainer {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+.title {
+  font-weight: 700 !important;
+  margin-bottom: 3rem !important;
+  color: #333;
+}
+
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.podiumPlace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 180px;
+  position: relative;
+}
+
+.avatar {
+  border: 4px solid white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background-color: #014195 !important;
+  font-size: 2.5rem !important;
+}
+
+.name {
+  margin-top: 0.5rem !important;
+  font-weight: 500 !important;
+  color: #111;
+}
+
+.points {
+  font-weight: bold !important;
+  color: #014195;
+}
+
+.podiumStep {
+  width: 100%;
+  padding: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.first .podiumStep { background-color: #ffd700; height: 150px; }
+.second .podiumStep { background-color: #c0c0c0; height: 100px; }
+.third .podiumStep { background-color: #cd7f32; height: 70px; }
+
+.crown {
+  width: 50px;
+  position: absolute;
+  top: -30px;
+  z-index: 10;
+}

@@ -20,6 +20,7 @@ import CriarCurso from './webApp/AdminPanel/Quizzes/CriarCurso'; // <-- NOVO
 import CadastrarPergunta from './webApp/AdminPanel/Quizzes/CadastrarPergunta'; // <-- NOVO
 import Unidade from './webApp/HomeAlternative/Unidade';
 import Curso from './webApp/HomeAlternative/Curso';
+import Ranking from './webApp/RankingGeral';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Route path="/unidade/:unidadeId" element={<ProtectedRoute> <Unidade /> </ProtectedRoute>} />
 
           <Route path="/curso/:cursoId" element={ <ProtectedRoute> <Curso /> </ProtectedRoute> } />
+          <Route path="/ranking" element={<ProtectedRoute> <Ranking /> </ProtectedRoute>} />
         {/* =================================================== */}
         {/* === ROTAS PROTEGIDAS APENAS PARA ADMINISTRADORES === */}
         {/* =================================================== */}
