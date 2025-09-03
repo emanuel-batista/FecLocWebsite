@@ -24,6 +24,7 @@ import Ranking from './webApp/RankingGeral';
 import MeusEmblemas from './webApp/MeusEmblemas';
 import Escanear from 'webApp/Escanear';
 import Pin from './components/Pin'
+import Footer from 'components/common/Footer';
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
         <Route path="/admin/quizzes/cadastrar-pergunta/:cursoId" element={<ProtectedRoute adminOnly={true}> <CadastrarPergunta /> </ProtectedRoute>} />
       </Routes>
       <Pin />
+      <Footer />
     </Router>
   );
 }
