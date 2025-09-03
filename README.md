@@ -1,70 +1,94 @@
-# Getting Started with Create React App
+# FecLocWebsite - Gamification Application for Events
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Welcome to the **FecLocWebsite** repository! This is a comprehensive web application designed to gamify events on university or corporate campuses. The platform allows users to explore different units, participate in quizzes via QR Codes, accumulate points, and compete for prizes in real-time.
 
-## Available Scripts
+The project includes a robust administration panel for managing all content, users, and contest features.
 
-In the project directory, you can run:
+## ✨ Key Features
 
-### `npm start`
+### For Users
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Secure Authentication:** Registration system with CPF (Brazilian individual taxpayer registry) validation and login.
+- **Campus Exploration:** View "Units" (stands/locations) with detailed information, including their location on Google Maps.
+- **Gamification with Quizzes:**
+    - **Integrated QR Code scanner** to access quizzes for each course/stand.
+    - Scoring system (`ptsTotais`) that updates after each quiz.
+    - Earn **badges** (gold or silver) based on performance.
+- **Real-Time Ranking:** A podium page displaying the top 5 players, updated instantly using Firestore.
+- **User Profile:** A "My Badges" page to view all achievements.
+- **Smart Search:** A search bar with auto-suggestions to easily find courses.
+- **Responsive Interface:** Fully adaptive design for a seamless experience on mobile devices.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### For Administrators
 
-### `npm test`
+- **Secure Admin Panel:** Access is restricted to users with "admin" permissions.
+- **User Management:**
+    - View all registered users.
+    - Functionality to **activate and deactivate** user accounts.
+- **Content Management (Full CRUD):**
+    - **Units:** Create, edit, and remove units, adding a name, photo URL, Google Maps link, and description.
+    - **Courses:** Create courses and associate them with a specific unit.
+    - **Quizzes:** Create multiple-choice questions for each course.
+- **QR Code Generation:** A tool to generate unique QR Codes for each quiz, ready to be printed and distributed.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 Tech Stack
 
-### `npm run build`
+- **Frontend:**
+    - **React.js** (with Hooks and Context API for state management)
+    - **Material-UI (MUI)** for modern and responsive UI components.
+    - **React Router DOM** for navigation.
+- **Backend & Infrastructure:**
+    - **Firebase:**
+        - **Authentication:** For login and registration management.
+        - **Firestore:** As a NoSQL database to store all information (users, units, courses, quizzes, badges).
+        - **Cloud Functions:** For secure backend operations (e.g., listing all users).
+    - **Vercel:**
+        - **Hosting:** For deploying the React frontend.
+        - **Serverless Functions:** For API endpoints (e.g., setting an admin, activating/deactivating a user).
+- **Notable Libraries:**
+    - `html5-qrcode`: For the QR Code scanning functionality.
+    - `qrcode.react`: For generating QR Codes in the admin panel.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🔧 Setup and Local Development
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+To run this project in your development environment, follow the steps below:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1.  **Clone the Repository**
+    ```bash
+    git clone [https://www.github.com/emanuel-batista/FecLocWebsite.git](https://www.github.com/emanuel-batista/FecLocWebsite.git)
+    cd FecLocWebsite
+    ```
 
-### `npm run eject`
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3.  **Configure Firebase**
+    - Create a project on the [Firebase Console](https://console.firebase.google.com/).
+    - Enable the **Authentication** (with the Email/Password method) and **Firestore Database** services.
+    - Go to Project Settings and copy the credentials for your "Web App".
+    - Create a `.env.local` file in the project root and add your credentials:
+        ```
+        REACT_APP_FIREBASE_API_KEY=YOUR_API_KEY
+        REACT_APP_FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
+        REACT_APP_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
+        REACT_APP_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
+        REACT_APP_FIREBASE_MESSAGING_SENDER_ID=YOUR_SENDER_ID
+        REACT_APP_FIREBASE_APP_ID=YOUR_APP_ID
+        ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+4.  **Run the Application**
+    ```bash
+    npm start
+    ```
+    The application will be available at `http://localhost:3000`.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 👑 How to Set the First Administrator
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+To access the admin panel, your first user needs to be promoted to admin.
+1.  Register an account normally through the application.
+2.  Follow the instructions in the `setAdmin.js` file in the project root to grant admin permissions to that account.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+Developed with ❤️ by Emanuel Batista.
