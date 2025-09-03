@@ -48,7 +48,7 @@ function App() {
 
           <Route path="/curso/:cursoId" element={ <ProtectedRoute> <Curso /> </ProtectedRoute> } />
           <Route path="/ranking" element={<ProtectedRoute> <Ranking /> </ProtectedRoute>} />
-          <Route path="/meus-emblemas" element={ <ProtectedRoute> <MeusEmblemas /> </ProtectedRoute> }
+          <Route path="/meus-emblemas" element={ <ProtectedRoute> <MeusEmblemas /> </ProtectedRoute> } />
         {/* =================================================== */}
         {/* === ROTAS PROTEGIDAS APENAS PARA ADMINISTRADORES === */}
         {/* =================================================== */}
