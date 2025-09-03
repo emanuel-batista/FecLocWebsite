@@ -1,0 +1,41 @@
+/* src/webApp/MeusEmblemas/MeusEmblemas.module.css */
+
+.pageContainer {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.title {
+  text-align: center;
+  font-weight: 700 !important;
+  margin-bottom: 3rem !important;
+  color: #333;
+}
+
+.emblemaCard {
+  padding: 1.5rem;
+  text-align: center;
+  border-radius: 16px !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.emblemaCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.emptyState {
+  padding: 3rem;
+  text-align: center;
+  border-radius: 16px !important;
+  background-color: #fff;
+  margin-top: 2rem;
+}
