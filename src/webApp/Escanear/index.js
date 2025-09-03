@@ -1,79 +1,91 @@
 // src/webApp/Escanear/index.js
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Container, Typography, Box, Paper, Alert, CircularProgress } from '@mui/material';
+import { Container, Typography, Box, Paper, Alert, CircularProgress, Button } from '@mui/material';
 import styles from './Escanear.module.css';
+import SwitchCameraIcon from '@mui/icons-material/SwitchCamera'; // Ícone para o botão
 
 function Escanear() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  // Usamos uma ref para guardar a instância do scanner e evitar recriações
   const scannerRef = useRef(null);
 
-  // Este useEffect agora tem um array de dependências vazio [].
-  // Isso garante que ele só será executado UMA VEZ quando o componente montar
-  // e a sua limpeza só ocorrerá quando o componente for desmontado.
-  useEffect(() => {
-    const scannerElementId = "qr-reader";
+  // --- NOVOS STATES PARA GERIR AS CÂMARAS ---
+  const [cameras, setCameras] = useState([]);
+  const [activeCameraId, setActiveCameraId] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
 
-    // Só cria uma nova instância se ela ainda não existir
-    if (!scannerRef.current) {
-      scannerRef.current = new Html5Qrcode(scannerElementId, /* verbose= */ false);
+  const onScanSuccess = useCallback((decodedText) => {
+    // Para a câmara assim que um código é lido
+    if (scannerRef.current && scannerRef.current.isScanning) {
+      scannerRef.current.stop();
     }
-    const html5QrCode = scannerRef.current;
+    try {
+      const url = new URL(decodedText);
+      navigate(url.pathname);
+    } catch (err) {
+      setError('QR Code inválido. Por favor, escaneie o código correto.');
+    }
+  }, [navigate]);
 
-    const startScanner = async () => {
-      try {
-        const devices = await Html5Qrcode.getCameras();
+  // Efeito principal para configurar o scanner
+  useEffect(() => {
+    scannerRef.current = new Html5Qrcode("qr-reader", false);
+    
+    Html5Qrcode.getCameras()
+      .then(devices => {
         if (devices && devices.length) {
-          let cameraId = devices[0].id;
+          setCameras(devices);
+          // Tenta encontrar a câmara traseira por defeito
           const rearCamera = devices.find(d => d.label.toLowerCase().includes('back'));
-          if (rearCamera) {
-            cameraId = rearCamera.id;
-          } else {
-            cameraId = devices[devices.length - 1].id;
-          }
-
-          html5QrCode.start(
-            cameraId,
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText, decodedResult) => {
-              // Sucesso na leitura
-              if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop();
-              }
-              try {
-                const url = new URL(decodedText);
-                navigate(url.pathname);
-              } catch (err) {
-                setError('QR Code inválido. Por favor, escaneie o código correto.');
-              }
-            },
-            (errorMessage) => { /* Ignora erros de "not found" */ }
-          ).catch(err => {
-            setError('Não foi possível iniciar a câmara. Verifique as permissões.');
-          });
+          setActiveCameraId(rearCamera ? rearCamera.id : devices[0].id);
         } else {
-          setError("Nenhuma câmara encontrada neste dispositivo.");
+          setError("Nenhuma câmara encontrada.");
         }
-      } catch (err) {
-        setError("Erro ao obter permissão da câmara. Por favor, autorize o acesso.");
-      }
-    };
+      })
+      .catch(err => {
+        setError("Não foi possível aceder às câmaras. Verifique as permissões.");
+      });
 
-    startScanner();
-
-    // Função de limpeza robusta
+    // Função de limpeza
     return () => {
       if (scannerRef.current && scannerRef.current.isScanning) {
-        scannerRef.current.stop().catch(err => {
-          console.error("Erro ao parar o scanner:", err);
-        });
+        scannerRef.current.stop();
       }
     };
-  }, [navigate]); // Manter navigate aqui é seguro e correto segundo a documentação do React
+  }, []);
+
+  // Efeito para iniciar/parar o scanner quando a câmara ativa muda
+  useEffect(() => {
+    if (activeCameraId && scannerRef.current) {
+      // Para o scanner atual antes de iniciar um novo
+      if (scannerRef.current.isScanning) {
+        scannerRef.current.stop();
+      }
+      
+      scannerRef.current.start(
+        activeCameraId,
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        (errorMessage) => { /* ignora erros de "not found" */ }
+      ).then(() => {
+        setIsScanning(true);
+      }).catch(err => {
+        setError("Erro ao iniciar a câmara. Tente outra ou verifique as permissões.");
+      });
+    }
+  }, [activeCameraId, onScanSuccess]);
+
+  // Função para trocar de câmara
+  const handleCameraSwitch = () => {
+    if (cameras.length > 1) {
+      const currentIndex = cameras.findIndex(c => c.id === activeCameraId);
+      const nextIndex = (currentIndex + 1) % cameras.length;
+      setActiveCameraId(cameras[nextIndex].id);
+    }
+  };
 
   return (
     <Container maxWidth="sm" className={styles.escanearContainer}>
@@ -85,8 +97,22 @@ function Escanear() {
           Aponte a sua câmara para o QR Code do stand para iniciar o quiz.
         </Typography>
 
-        {/* Este div continua a ser o local onde a câmara será renderizada */}
-        <Box id="qr-reader" className={styles.videoWrapper} />
+        {/* Div onde a câmara será renderizada */}
+        <Box id="qr-reader" className={styles.videoWrapper}>
+            {!isScanning && !error && <CircularProgress />}
+        </Box>
+
+        {/* Botão para trocar de câmara (só aparece se houver mais de uma) */}
+        {cameras.length > 1 && (
+          <Button
+            variant="contained"
+            startIcon={<SwitchCameraIcon />}
+            onClick={handleCameraSwitch}
+            sx={{ mt: 2 }}
+          >
+            Trocar Câmara
+          </Button>
+        )}
 
         {error && (
           <Alert severity="error" sx={{ mt: 3, width: '100%' }}>
