@@ -26,7 +26,7 @@ function PremioBanner() {
           Concorra a um Prémio Delicioso! 🍫
         </Typography>
         <Typography variant="body2" sx={{ color: '#614D2A' }}>
-          O utilizador com mais pontos no ranking geral ganhará uma cesta de chocolate da Cacau Show!
+          O usuário com mais pontos no ranking geral ganhará uma cesta de chocolate da Cacau Show!
         </Typography>
       </Box>
       <Button
