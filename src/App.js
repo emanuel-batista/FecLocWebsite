@@ -22,6 +22,7 @@ import Unidade from './webApp/HomeAlternative/Unidade';
 import Curso from './webApp/HomeAlternative/Curso';
 import Ranking from './webApp/RankingGeral';
 import MeusEmblemas from './webApp/MeusEmblemas';
+import Escanear from 'webApp/Escanear';
 
 function App() {
   return (
@@ -40,8 +41,8 @@ function App() {
           path="/home"
           element={<ProtectedRoute> <HomeApp /> </ProtectedRoute>}
         />
-        
 
+        <Route path='/escanear' element={<ProtectedRoute> <Escanear /> </ProtectedRoute>} />
         {/* --- NOVA ROTA DO QUIZ --- */}
         <Route path="/quiz/responder/:quizId" element={<ProtectedRoute> <Quiz /> </ProtectedRoute>} />
         <Route path="/unidade/:unidadeId" element={<ProtectedRoute> <Unidade /> </ProtectedRoute>} />
