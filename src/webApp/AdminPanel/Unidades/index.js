@@ -1,6 +1,6 @@
 // src/webApp/AdminPanel/Unidades/index.js
 
-import React, { useState, useEffect, useCallback } from 'react'; // <-- Importa useCallback
+import React, { useState, useEffect, useCallback } from 'react';
 import { getFirestore, collection, addDoc, getDocs, orderBy, query } from 'firebase/firestore';
 import {
   Container,
@@ -18,6 +18,7 @@ function AdminUnidades() {
   const [nome, setNome] = useState('');
   const [fotoUrl, setFotoUrl] = useState('');
   const [localizacaoUrl, setLocalizacaoUrl] = useState('');
+  const [descricao, setDescricao] = useState(''); // <-- NOVO STATE
   const [loading, setLoading] = useState(false);
   const [listLoading, setListLoading] = useState(true);
   const [unidades, setUnidades] = useState([]);
@@ -29,8 +30,6 @@ function AdminUnidades() {
     setAlert({ open: true, message, severity });
   };
 
-  // --- FUNÇÃO MOVIDA PARA FORA DO USEEFFECT ---
-  // Envolvemos com useCallback para otimização e para evitar loops infinitos de re-renderização.
   const fetchUnidades = useCallback(async () => {
     setListLoading(true);
     try {
@@ -40,38 +39,43 @@ function AdminUnidades() {
       setUnidades(unidadesList);
     } catch (error) {
       console.error("Erro ao buscar unidades:", error);
-      // O showAlert não pode ser chamado diretamente aqui, pois causaria um loop
-      // A lógica de alerta de erro na busca foi removida para simplificar
     } finally {
       setListLoading(false);
     }
-  }, [db]); // A função será recriada se 'db' mudar
+  }, [db]);
 
   useEffect(() => {
-    // Agora o useEffect apenas chama a função que já existe fora dele
     fetchUnidades();
-  }, [fetchUnidades]); // A dependência agora é a própria função
+  }, [fetchUnidades]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!nome || !fotoUrl || !localizacaoUrl) {
-      showAlert('Por favor, preencha todos os campos.', 'warning');
+      showAlert('Por favor, preencha os campos obrigatórios.', 'warning');
       return;
     }
     setLoading(true);
 
     try {
-      await addDoc(collection(db, "unidades"), {
+      const novaUnidade = {
         nome: nome,
         fotoUrl: fotoUrl,
         localizacaoUrl: localizacaoUrl,
         criadoEm: new Date()
-      });
+      };
+      
+      if (descricao) {
+        novaUnidade.descricao = descricao;
+      }
+
+      await addDoc(collection(db, "unidades"), novaUnidade);
+      
       showAlert('Unidade cadastrada com sucesso!', 'success');
       setNome('');
       setFotoUrl('');
       setLocalizacaoUrl('');
-      fetchUnidades(); // <-- AGORA A CHAMADA FUNCIONA CORRETAMENTE
+      setDescricao(''); // <-- LIMPA O CAMPO
+      fetchUnidades();
     } catch (error) {
       console.error("Erro ao cadastrar unidade: ", error);
       showAlert('Erro ao cadastrar unidade.', 'error');
@@ -90,7 +94,7 @@ function AdminUnidades() {
         Gerenciamento de Unidades
       </Typography>
 
-      <Paper component="form" onSubmit={handleSubmit} sx={{ p: 3, mb: 4 }}>
+      <Paper component="form" onSubmit={handleSubmit} sx={{ p: 3, mb: 4, borderRadius: '16px' }}>
         <Typography variant="h6" gutterBottom>Cadastrar Nova Unidade</Typography>
         <TextField
           label="Nome da Unidade"
@@ -98,6 +102,7 @@ function AdminUnidades() {
           margin="normal"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
+          required
         />
         <TextField
           label="URL da Foto"
@@ -105,6 +110,7 @@ function AdminUnidades() {
           margin="normal"
           value={fotoUrl}
           onChange={(e) => setFotoUrl(e.target.value)}
+          required
         />
         <TextField
           label="URL de Localização do Google Maps"
@@ -113,12 +119,24 @@ function AdminUnidades() {
           value={localizacaoUrl}
           onChange={(e) => setLocalizacaoUrl(e.target.value)}
           helperText="No Google Maps, clique em 'Compartilhar' e 'Copiar link'"
+          required
+        />
+        {/* --- NOVO CAMPO DE DESCRIÇÃO (OPCIONAL) --- */}
+        <TextField
+          label="Descrição (Ex: Sala, Bloco, etc.)"
+          fullWidth
+          margin="normal"
+          multiline
+          rows={2}
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+          helperText="Opcional: Informe detalhes da localização do stand."
         />
         <Box sx={{ mt: 2, position: 'relative' }}>
           <Button type="submit" variant="contained" disabled={loading}>
             {loading ? 'Cadastrando...' : 'Cadastrar Unidade'}
           </Button>
-          {loading && <CircularProgress size={24} sx={{ position: 'absolute', top: '50%', left: '50%', mt: '-12px', ml: '-12px' }} />}
+          {loading && <CircularProgress size={24} sx={{ position: 'absolute', top: '50%', left: '50%', mt: '-12px', ml: '-50px' }} />}
         </Box>
       </Paper>
 
@@ -127,9 +145,12 @@ function AdminUnidades() {
         <Box display="flex" justifyContent="center"><CircularProgress /></Box>
       ) : (
         unidades.map(unidade => (
-          <Paper key={unidade.id} sx={{ p: 2, mb: 1, display: 'flex', alignItems: 'center' }}>
-            <img src={unidade.fotoUrl} alt={unidade.nome} width="80" height="80" style={{ marginRight: '16px', borderRadius: '4px', objectFit: 'cover' }} />
-            <Typography variant="body1">{unidade.nome}</Typography>
+          <Paper key={unidade.id} sx={{ p: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 2, borderRadius: '8px' }}>
+            <img src={unidade.fotoUrl} alt={unidade.nome} width="80" height="80" style={{ objectFit: 'cover', borderRadius: '4px' }} />
+            <Box>
+              <Typography variant="body1" fontWeight="bold">{unidade.nome}</Typography>
+              {unidade.descricao && <Typography variant="body2" color="text.secondary">{unidade.descricao}</Typography>}
+            </Box>
           </Paper>
         ))
       )}
