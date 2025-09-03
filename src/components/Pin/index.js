@@ -4,13 +4,13 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-// Imports do Material-UI para o SpeedDial
+// Imports do Material-UI
 import Box from '@mui/material/Box';
 import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 
 // Ícones para as ações
+import RoomIcon from '@mui/icons-material/Room'; // <-- ÍCONE DE PIN DE LOCALIZAÇÃO
 import HomeIcon from '@mui/icons-material/Home';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
@@ -21,18 +21,16 @@ function Pin() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Define as ações do menu
   const actions = [
     { icon: <HomeIcon />, name: 'Home', path: '/home' },
     { icon: <EmojiEventsIcon />, name: 'Meus Emblemas', path: '/meus-emblemas' },
     { 
-      icon: <LeaderboardIcon sx={{ color: '#E4A11B' }} />, // Cor dourada para o ícone
+      icon: <LeaderboardIcon sx={{ color: '#E4A11B' }} />,
       name: 'Ranking Geral', 
       path: '/ranking' 
     },
   ];
 
-  // Adiciona a ação de admin apenas se o utilizador for um admin
   if (userRole === 'admin') {
     actions.push({ 
       icon: <AdminPanelSettingsIcon />, 
@@ -41,18 +39,28 @@ function Pin() {
     });
   }
 
-  // Lista de páginas onde o botão NÃO deve aparecer
   const hiddenRoutes = ['/', '/login', '/register', '/sobre', '/contato'];
   if (hiddenRoutes.includes(location.pathname)) {
-    return null; // Não renderiza nada nestas páginas
+    return null;
   }
 
   return (
-    <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1, position: 'fixed', bottom: 16, right: 16, zIndex: 1200 }}>
+    <Box sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1200 }}>
       <SpeedDial
         ariaLabel="Menu de Navegação Rápida"
-        icon={<SpeedDialIcon />}
-        direction="up" // As opções abrem para cima
+        // --- MUDANÇA DO ÍCONE E REMOÇÃO DA SOMBRA ---
+        icon={<RoomIcon />} 
+        direction="up"
+        sx={{
+          '& .MuiFab-primary': { 
+            backgroundColor: '#014195', // Mantém a cor principal
+            boxShadow: 'none', // Remove a sombra principal
+            '&:hover': {
+              backgroundColor: '#013275',
+              boxShadow: 'none' // Remove a sombra no hover
+            }
+          }
+        }}
       >
         {actions.map((action) => (
           <SpeedDialAction
@@ -60,6 +68,15 @@ function Pin() {
             icon={action.icon}
             tooltipTitle={action.name}
             onClick={() => navigate(action.path)}
+            // --- REMOÇÃO DA SOMBRA DOS BOTÕES DE AÇÃO ---
+            sx={{
+              '&.MuiSpeedDialAction-fab': {
+                boxShadow: 'none',
+                '&:hover': {
+                  boxShadow: 'none'
+                }
+              }
+            }}
           />
         ))}
       </SpeedDial>
