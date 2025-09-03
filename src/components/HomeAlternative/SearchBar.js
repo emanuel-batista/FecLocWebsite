@@ -15,33 +15,25 @@ import { auth } from '../../firebase/config';
 import { signOut } from 'firebase/auth';
 
 function SearchBar() {
-    // States para o menu de logout
     const [anchorEl, setAnchorEl] = useState(null);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    
-    // States para a busca
     const [searchTerm, setSearchTerm] = useState('');
     const [allCursos, setAllCursos] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [isSuggestionsVisible, setIsSuggestionsVisible] = useState(false);
-    
-    // State para alertas
     const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
-    
     const navigate = useNavigate();
     const isMenuOpen = Boolean(anchorEl);
-    const searchContainerRef = useRef(null); // Ref para o contêiner da busca
+    const searchContainerRef = useRef(null);
 
-    // Efeito que busca todos os cursos do Firestore uma única vez (pré-carregamento)
     useEffect(() => {
         const fetchCursos = async () => {
-            console.log("Iniciando busca de cursos no Firestore...");
             try {
                 const db = getFirestore();
                 const querySnapshot = await getDocs(collection(db, "cursos"));
                 const cursosList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setAllCursos(cursosList);
-                console.log("Cursos pré-carregados com sucesso:", cursosList);
+                console.log("Cursos pré-carregados:", cursosList); // Verifique o console do navegador
             } catch (error) {
                 console.error("ERRO ao buscar cursos:", error);
             }
@@ -49,7 +41,6 @@ function SearchBar() {
         fetchCursos();
     }, []);
 
-    // Efeito para fechar as sugestões se o usuário clicar fora
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
@@ -60,7 +51,6 @@ function SearchBar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Handler para quando o usuário digita na busca
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
@@ -70,27 +60,37 @@ function SearchBar() {
                 curso.nome && curso.nome.toLowerCase().includes(value.toLowerCase())
             );
             setSuggestions(filtered);
-            setIsSuggestionsVisible(true); // Mostra a lista
+            setIsSuggestionsVisible(true);
         } else {
             setSuggestions([]);
-            setIsSuggestionsVisible(false); // Esconde a lista
+            setIsSuggestionsVisible(false);
         }
     };
 
-    // Handler para quando o usuário seleciona uma sugestão
     const handleSuggestionClick = (cursoId) => {
         setSearchTerm('');
         setIsSuggestionsVisible(false);
         navigate(`/curso/${cursoId}`);
     };
     
-    // Funções de logout e alertas (sem alteração)
     const showAlert = (message, severity = 'info') => setAlert({ open: true, message, severity });
     const handleCloseAlert = () => setAlert({ ...alert, open: false });
     const handleAccountClick = (event) => setAnchorEl(event.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);
     const handleLogout = async () => {
-        // ... (código do logout)
+        if (isLoggingOut) return;
+        setIsLoggingOut(true);
+        handleMenuClose();
+        showAlert("Saindo...", "info");
+        try {
+            await signOut(auth);
+            showAlert("Logout realizado com sucesso!", "success");
+        } catch (error) {
+            console.error('Erro ao fazer logout:', error);
+            showAlert('Erro ao fazer logout. Tente novamente.', 'error');
+        } finally {
+            setIsLoggingOut(false);
+        }
     };
 
     return (
@@ -104,7 +104,7 @@ function SearchBar() {
                         className={styles.input}
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        onFocus={() => { if (searchTerm) setIsSuggestionsVisible(true); }} // Mostra ao focar de novo
+                        onFocus={() => { if (searchTerm) setIsSuggestionsVisible(true); }}
                     />
                     <AccountCircleIcon
                         className={styles.accountIcon}
@@ -113,7 +113,7 @@ function SearchBar() {
                     />
                 </div>
                 
-                {/* LISTA DE SUGESTÕES */}
+                {/* --- LÓGICA DE RENDERIZAÇÃO CORRIGIDA --- */}
                 {isSuggestionsVisible && (
                     <ul className={styles.suggestionsList}>
                         {suggestions.length > 0 ? (
@@ -127,19 +127,24 @@ function SearchBar() {
                                 </li>
                             ))
                         ) : (
+                            // Esta parte agora é renderizada corretamente
+                            // quando a busca está ativa mas não há resultados.
                             <li className={styles.noSuggestionItem}>Curso não encontrado</li>
                         )}
                     </ul>
                 )}
             </div>
 
-            {/* Menu de Logout e Snackbar (sem alteração) */}
-            <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenuClose} /* ... */>
-                <MenuItem onClick={handleLogout} /* ... */ >
-                    {/* ... */}
+            <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenu-close}>
+                <MenuItem onClick={handleLogout} disabled={isLoggingOut}>
+                    <ListItemIcon>
+                        <LogoutIcon fontSize="small" color="error" />
+                    </ListItemIcon>
+                    <ListItemText primary={isLoggingOut ? "Saindo..." : "Sair"} />
                 </MenuItem>
             </Menu>
-            <Snackbar open={alert.open} autoHideDuration={4000} onClose={handleCloseAlert} /* ... */ >
+
+            <Snackbar open={alert.open} autoHideDuration={4000} onClose={handleCloseAlert} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
                     {alert.message}
                 </Alert>
