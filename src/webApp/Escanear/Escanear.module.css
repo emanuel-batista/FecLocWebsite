@@ -22,10 +22,16 @@
   position: relative;
   width: 100%;
   max-width: 400px;
+  min-height: 300px; /* Adiciona uma altura mínima */
   margin: 0 auto;
   border-radius: 16px;
-  overflow: hidden; /* Garante que o vídeo fique dentro das bordas arredondadas */
+  overflow: hidden;
   border: 4px solid #eee;
+  /* --- NOVO: Centraliza o spinner --- */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ---------------------------------- */
 }
 
 /* Overlay com a "mira" do scanner */
