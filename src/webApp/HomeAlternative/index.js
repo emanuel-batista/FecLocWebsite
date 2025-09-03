@@ -4,32 +4,28 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getFirestore, collection, getDocs, query, orderBy } from 'firebase/firestore';
 import PlaceCard from 'components/HomeAlternative/PlaceCard';
-import CursoCard from 'components/HomeAlternative/CursoCard'; // <-- NOVO IMPORT
+import CursoCard from 'components/HomeAlternative/CursoCard';
 import styles from "./hAlternative.module.css";
 import SearchBar from "components/HomeAlternative/SearchBar";
+import PremioBanner from 'components/HomeAlternative/PremioBanner'; // <-- NOVO IMPORT
 import { CircularProgress, Box, Typography } from '@mui/material';
 
 function HomeAlternative() {
   const [unidades, setUnidades] = useState([]);
   const [allCursos, setAllCursos] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // --- NOVOS STATES PARA CONTROLE DA BUSCA ---
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Pré-carrega tanto as unidades quanto os cursos
   useEffect(() => {
     const fetchData = async () => {
       try {
         const db = getFirestore();
-        // Busca unidades
         const unidadesQuery = query(collection(db, "unidades"), orderBy("nome"));
         const unidadesSnapshot = await getDocs(unidadesQuery);
         setUnidades(unidadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         
-        // Busca todos os cursos para a pesquisa
         const cursosSnapshot = await getDocs(collection(db, "cursos"));
         setAllCursos(cursosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       } catch (error) {
@@ -41,17 +37,14 @@ function HomeAlternative() {
     fetchData();
   }, []);
 
-  // Função chamada quando o usuário digita na SearchBar
   const handleSearchChange = (value) => {
     setSearchTerm(value);
-    // Se o usuário apagar o texto, volta para a visão de unidades
     if (value === '') {
       setIsSearching(false);
       setSearchResults([]);
     }
   };
 
-  // Função chamada quando o usuário pressiona Enter na SearchBar
   const handleSearchSubmit = () => {
     if (searchTerm.trim() === '') {
       setIsSearching(false);
@@ -69,7 +62,6 @@ function HomeAlternative() {
       return <Box display="flex" justifyContent="center" sx={{ my: 4 }}><CircularProgress /></Box>;
     }
 
-    // Se está no modo de busca, mostra os resultados dos cursos
     if (isSearching) {
       return (
         <Box sx={{ mt: 2 }}>
@@ -83,7 +75,6 @@ function HomeAlternative() {
       );
     }
     
-    // Senão, mostra a visão padrão de unidades
     return (
       <>
         <h2 className={styles.h2}>Unidades</h2>
@@ -108,6 +99,10 @@ function HomeAlternative() {
         onSearchChange={handleSearchChange}
         onSearchSubmit={handleSearchSubmit}
       />
+      
+      {/* --- BANNER ADICIONADO AQUI --- */}
+      <PremioBanner />
+
       {renderContent()}
     </div>
   );
