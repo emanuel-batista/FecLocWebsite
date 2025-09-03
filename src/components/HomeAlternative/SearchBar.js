@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import styles from './homealternative.module.css';
 
-// --- Imports do Material-UI ---
 import { Menu, MenuItem, ListItemIcon, ListItemText, Alert, Snackbar } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -33,7 +32,6 @@ function SearchBar() {
                 const querySnapshot = await getDocs(collection(db, "cursos"));
                 const cursosList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setAllCursos(cursosList);
-                console.log("Cursos pré-carregados:", cursosList); // Verifique o console do navegador
             } catch (error) {
                 console.error("ERRO ao buscar cursos:", error);
             }
@@ -54,7 +52,6 @@ function SearchBar() {
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
-
         if (value.length > 0) {
             const filtered = allCursos.filter(curso =>
                 curso.nome && curso.nome.toLowerCase().includes(value.toLowerCase())
@@ -76,7 +73,7 @@ function SearchBar() {
     const showAlert = (message, severity = 'info') => setAlert({ open: true, message, severity });
     const handleCloseAlert = () => setAlert({ ...alert, open: false });
     const handleAccountClick = (event) => setAnchorEl(event.currentTarget);
-    const handleMenuClose = () => setAnchorEl(null);
+    const handleMenuClose = () => setAnchorEl(null); // <-- A função correta
     const handleLogout = async () => {
         if (isLoggingOut) return;
         setIsLoggingOut(true);
@@ -113,7 +110,6 @@ function SearchBar() {
                     />
                 </div>
                 
-                {/* --- LÓGICA DE RENDERIZAÇÃO CORRIGIDA --- */}
                 {isSuggestionsVisible && (
                     <ul className={styles.suggestionsList}>
                         {suggestions.length > 0 ? (
@@ -127,15 +123,14 @@ function SearchBar() {
                                 </li>
                             ))
                         ) : (
-                            // Esta parte agora é renderizada corretamente
-                            // quando a busca está ativa mas não há resultados.
                             <li className={styles.noSuggestionItem}>Curso não encontrado</li>
                         )}
                     </ul>
                 )}
             </div>
 
-            <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenu-close}>
+            {/* O ERRO ESTAVA AQUI, no onClose */}
+            <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenuClose}>
                 <MenuItem onClick={handleLogout} disabled={isLoggingOut}>
                     <ListItemIcon>
                         <LogoutIcon fontSize="small" color="error" />
