@@ -133,8 +133,8 @@ function Users() {
             <TableRow key={user.uid} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell component="th" scope="row">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Avatar src={user.photoURL} sx={{ mr: 2 }}>{user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)}</Avatar>
-                  {user.displayName || 'Sem nome'}
+                  <Avatar src={user.photoURL} sx={{ mr: 2 }}>{user.fullName ? user.fullName.charAt(0) : user.email.charAt(0)}</Avatar>
+                  {user.fullName || 'Sem nome'}
                 </Box>
               </TableCell>
               <TableCell>{user.email}</TableCell>
@@ -160,9 +160,9 @@ function Users() {
       {users.map((user) => (
         <Paper key={user.uid} sx={{ p: 2, mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <Avatar src={user.photoURL} sx={{ width: 48, height: 48 }}>{user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)}</Avatar>
+            <Avatar src={user.photoURL} sx={{ width: 48, height: 48 }}>{user.fullName ? user.fullName.charAt(0) : user.email.charAt(0)}</Avatar>
             <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="body1" fontWeight="bold" noWrap>{user.displayName || 'Sem nome'}</Typography>
+              <Typography variant="body1" fontWeight="bold" noWrap>{user.fullName || 'Sem nome'}</Typography>
               <Typography variant="body2" color="text.secondary" noWrap>{user.email}</Typography>
               <Typography variant="caption" color="text.secondary">Criado em: {new Date(user.creationTime).toLocaleDateString('pt-BR')}</Typography>
             </Box>
