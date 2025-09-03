@@ -77,7 +77,12 @@ function HomeAlternative() {
     
     return (
       <>
-        <h2 className={styles.h2}>Unidades</h2>
+<Typography
+  variant="h5"
+  sx={{ mt: 2, color: '#014195' }}
+>
+  Explore Nossas Unidades
+</Typography>
         <div className={styles.hAlternative}>
           {unidades.map(unidade => (
             <Link to={`/unidade/${unidade.id}`} key={unidade.id} className={styles.placeCardLink}>
