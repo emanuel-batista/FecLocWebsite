@@ -1,0 +1,64 @@
+/* src/webApp/Escanear/Escanear.module.css */
+
+.escanearContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: #f4f6f8;
+}
+
+.scannerBox {
+  padding: 2rem;
+  text-align: center;
+  border-radius: 16px !important;
+  width: 100%;
+  max-width: 500px;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden; /* Garante que o vídeo fique dentro das bordas arredondadas */
+  border: 4px solid #eee;
+}
+
+/* Overlay com a "mira" do scanner */
+.scannerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 0 400px rgba(0,0,0,0.5); /* Sombra à volta */
+  border: 2px solid white;
+  box-sizing: border-box;
+}
+
+.scannerOverlay::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, red, transparent);
+  animation: scan 2s infinite linear;
+}
+
+@keyframes scan {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
