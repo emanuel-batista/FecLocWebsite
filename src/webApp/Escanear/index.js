@@ -5,20 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Container, Typography, Box, Paper, Alert, CircularProgress, Button } from '@mui/material';
 import styles from './Escanear.module.css';
-import SwitchCameraIcon from '@mui/icons-material/SwitchCamera'; // Ícone para o botão
+import SwitchCameraIcon from '@mui/icons-material/SwitchCamera';
 
 function Escanear() {
   const [error, setError] = useState(null);
+  const [cameras, setCameras] = useState([]);
+  const [activeCameraId, setActiveCameraId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Estado de carregamento
   const navigate = useNavigate();
   const scannerRef = useRef(null);
 
-  // --- NOVOS STATES PARA GERIR AS CÂMARAS ---
-  const [cameras, setCameras] = useState([]);
-  const [activeCameraId, setActiveCameraId] = useState(null);
-  const [isScanning, setIsScanning] = useState(false);
-
+  // Função de sucesso ao escanear
   const onScanSuccess = useCallback((decodedText) => {
-    // Para a câmara assim que um código é lido
     if (scannerRef.current && scannerRef.current.isScanning) {
       scannerRef.current.stop();
     }
@@ -38,15 +36,16 @@ function Escanear() {
       .then(devices => {
         if (devices && devices.length) {
           setCameras(devices);
-          // Tenta encontrar a câmara traseira por defeito
           const rearCamera = devices.find(d => d.label.toLowerCase().includes('back'));
           setActiveCameraId(rearCamera ? rearCamera.id : devices[0].id);
         } else {
           setError("Nenhuma câmara encontrada.");
+          setIsLoading(false); // CORREÇÃO: Garante que o loading para
         }
       })
       .catch(err => {
         setError("Não foi possível aceder às câmaras. Verifique as permissões.");
+        setIsLoading(false); // CORREÇÃO: Garante que o loading para
       });
 
     // Função de limpeza
@@ -65,15 +64,17 @@ function Escanear() {
         scannerRef.current.stop();
       }
       
+      setIsLoading(true); // Mostra o loading ao trocar de câmara
       scannerRef.current.start(
         activeCameraId,
         { fps: 10, qrbox: { width: 250, height: 250 } },
         onScanSuccess,
-        (errorMessage) => { /* ignora erros de "not found" */ }
+        (errorMessage) => { /* ignora erros */ }
       ).then(() => {
-        setIsScanning(true);
+        setIsLoading(false); // Para o loading quando a câmara inicia
       }).catch(err => {
         setError("Erro ao iniciar a câmara. Tente outra ou verifique as permissões.");
+        setIsLoading(false); // CORREÇÃO: Garante que o loading para
       });
     }
   }, [activeCameraId, onScanSuccess]);
@@ -97,18 +98,18 @@ function Escanear() {
           Aponte a sua câmara para o QR Code do stand para iniciar o quiz.
         </Typography>
 
-        {/* Div onde a câmara será renderizada */}
+        {/* O spinner agora é controlado pelo novo estado isLoading */}
         <Box id="qr-reader" className={styles.videoWrapper}>
-            {!isScanning && !error && <CircularProgress />}
+            {isLoading && <CircularProgress />}
         </Box>
 
-        {/* Botão para trocar de câmara (só aparece se houver mais de uma) */}
         {cameras.length > 1 && (
           <Button
             variant="contained"
             startIcon={<SwitchCameraIcon />}
             onClick={handleCameraSwitch}
             sx={{ mt: 2 }}
+            disabled={isLoading}
           >
             Trocar Câmara
           </Button>
