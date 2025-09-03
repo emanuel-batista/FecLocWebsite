@@ -18,53 +18,29 @@
   max-width: 500px;
 }
 
-.videoWrapper {
-  position: relative;
-  width: 100%;
-  max-width: 400px;
-  min-height: 300px; /* Adiciona uma altura mínima */
+.videoContainer {
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
-  border: 4px solid #eee;
-  /* --- NOVO: Centraliza o spinner --- */
+}
+
+.videoWrapper {
+  width: 100%;
+  max-width: 400px;
+  border: none !important; /* Remove a borda padrão */
+}
+
+/* NOVO: Estilo para o placeholder antes de a câmara abrir */
+.placeholder {
+  height: 300px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border: 2px dashed #ddd;
+  border-radius: 16px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* ---------------------------------- */
-}
-
-/* Overlay com a "mira" do scanner */
-.scannerOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  box-shadow: 0 0 0 400px rgba(0,0,0,0.5); /* Sombra à volta */
-  border: 2px solid white;
-  box-sizing: border-box;
-}
-
-.scannerOverlay::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, red, transparent);
-  animation: scan 2s infinite linear;
-}
-
-@keyframes scan {
-  0% {
-    top: 0%;
-  }
-  50% {
-    top: 100%;
-  }
-  100% {
-    top: 0%;
-  }
+  background-color: #fafafa;
 }
