@@ -191,7 +191,12 @@ function Quiz() {
                 key={i}
                 value={opcao}
                 control={<Radio />}
-                label={<Typography sx={{ wordBreak: 'break-word' }}>{opcao}</Typography>}
+                label={
+                  <Typography sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                    {opcao}
+                  </Typography>
+                }
+                sx={{ alignItems: 'flex-start' }}
               />
             ))}
           </RadioGroup>
