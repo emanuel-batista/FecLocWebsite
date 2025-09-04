@@ -1,5 +1,3 @@
-// src/webApp/Quiz/index.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getFirestore, collection, doc, getDoc, getDocs, query, orderBy, updateDoc, setDoc } from 'firebase/firestore';
@@ -22,6 +20,11 @@ function Quiz() {
   const { quizId } = useParams();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  
+  // States para o estado do concurso
+  const [concursoTerminado, setConcursoTerminado] = useState(false);
+  const [vencedor, setVencedor] = useState(null);
+
   const [curso, setCurso] = useState(null);
   const [perguntas, setPerguntas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +37,17 @@ function Quiz() {
   const fetchQuizData = useCallback(async () => {
     setLoading(true);
     try {
-      // --- VALIDAÇÃO: VERIFICA SE O QUIZ JÁ FOI RESPONDIDO ---
+      // Verificação inicial do estado do concurso
+      const estadoConcursoRef = doc(db, "concurso", "estado");
+      const estadoConcursoSnap = await getDoc(estadoConcursoRef);
+      if (estadoConcursoSnap.exists() && estadoConcursoSnap.data().terminou) {
+        setVencedor(estadoConcursoSnap.data());
+        setConcursoTerminado(true);
+        setLoading(false);
+        return; // Para a execução
+      }
+
+      // Verificação se o utilizador já respondeu a este quiz
       if (currentUser) {
         const emblemaRef = doc(db, "users", currentUser.uid, "emblemas", quizId);
         const emblemaSnap = await getDoc(emblemaRef);
@@ -87,7 +100,6 @@ function Quiz() {
     
     const pontosGanhos = acertos * 10;
     setPontuacao(pontosGanhos);
-
     const pontuacaoMaxima = perguntas.length * 10;
     const emblemaTipo = pontosGanhos === pontuacaoMaxima ? 'gold' : 'silver';
     setEmblemaConquistado(emblemaTipo);
@@ -98,9 +110,7 @@ function Quiz() {
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           const ptsAtuais = userSnap.data().ptsTotais || 0;
-          await updateDoc(userRef, {
-            ptsTotais: ptsAtuais + pontosGanhos
-          });
+          await updateDoc(userRef, { ptsTotais: ptsAtuais + pontosGanhos });
         }
         const emblemaRef = doc(db, "users", currentUser.uid, "emblemas", quizId);
         await setDoc(emblemaRef, {
@@ -117,6 +127,29 @@ function Quiz() {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>;
   if (error) return <Container sx={{ mt: 4 }}><Alert severity="error">{error}</Alert></Container>;
 
+  // Tela para quando o concurso termina
+  if (concursoTerminado) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 4, textAlign: 'center' }}>
+        <Paper sx={{ p: 4 }}>
+          <Typography variant="h4">O Concurso Terminou!</Typography>
+          <Typography variant="h6" sx={{ my: 3 }}>
+            O vencedor já foi determinado.
+          </Typography>
+          {vencedor && (
+            <Alert severity="success">
+              Parabéns a <strong>{vencedor.vencedorNome}</strong> por ganhar com {vencedor.vencedorPontos} pontos!
+            </Alert>
+          )}
+          <Button variant="contained" onClick={() => navigate('/home')} sx={{ mt: 3 }}>
+            Voltar para a Home
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
+
+  // Tela de resultado após responder
   if (pontuacao !== null) {
     return (
       <Container maxWidth="sm" sx={{ mt: 4, textAlign: 'center' }}>
@@ -138,11 +171,12 @@ function Quiz() {
       </Container>
     );
   }
-
+  
   if (!curso) {
-      return null;
+    return null; // Não renderiza nada se o curso ainda não foi carregado
   }
 
+  // Tela principal do Quiz
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4">{curso.nome}</Typography>
@@ -167,3 +201,4 @@ function Quiz() {
 }
 
 export default Quiz;
+

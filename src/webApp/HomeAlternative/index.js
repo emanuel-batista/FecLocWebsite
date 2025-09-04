@@ -1,14 +1,12 @@
-// src/webApp/HomeAlternative/index.js
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getFirestore, collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import PlaceCard from 'components/HomeAlternative/PlaceCard';
 import CursoCard from 'components/HomeAlternative/CursoCard';
 import styles from "./hAlternative.module.css";
 import SearchBar from "components/HomeAlternative/SearchBar";
-import PremioBanner from 'components/HomeAlternative/PremioBanner'; // <-- NOVO IMPORT
-import { CircularProgress, Box, Typography } from '@mui/material';
+import PremioBanner from 'components/HomeAlternative/PremioBanner';
+import { CircularProgress, Box, Typography, Paper } from '@mui/material';
 
 function HomeAlternative() {
   const [unidades, setUnidades] = useState([]);
@@ -17,11 +15,23 @@ function HomeAlternative() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  
+  // Novo state para guardar a informação do vencedor
+  const [vencedorInfo, setVencedorInfo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const db = getFirestore();
+        
+        // Busca o estado do concurso para ver se já terminou
+        const estadoConcursoRef = doc(db, "concurso", "estado");
+        const estadoConcursoSnap = await getDoc(estadoConcursoRef);
+        if (estadoConcursoSnap.exists() && estadoConcursoSnap.data().terminou) {
+          setVencedorInfo(estadoConcursoSnap.data());
+        }
+
+        // Busca o resto dos dados
         const unidadesQuery = query(collection(db, "unidades"), orderBy("nome"));
         const unidadesSnapshot = await getDocs(unidadesQuery);
         setUnidades(unidadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -77,12 +87,7 @@ function HomeAlternative() {
     
     return (
       <>
-<Typography
-  variant="h5"
-  sx={{ mt: 2, color: '#014195' }}
->
-  Explore Nossas Unidades
-</Typography>
+        <h2 className={styles.h2}>Unidades</h2>
         <div className={styles.hAlternative}>
           {unidades.map(unidade => (
             <Link to={`/unidade/${unidade.id}`} key={unidade.id} className={styles.placeCardLink}>
@@ -105,8 +110,16 @@ function HomeAlternative() {
         onSearchSubmit={handleSearchSubmit}
       />
       
-      {/* --- BANNER ADICIONADO AQUI --- */}
-      <PremioBanner />
+      {/* Renderização condicional do banner */}
+      {vencedorInfo ? (
+        <Paper elevation={3} sx={{ p: 2, mt: 3, mb: 3, borderRadius: '16px', background: 'linear-gradient(135deg, #FFD700, #FFA000)' }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>
+            🏆 O Concurso Terminou! Parabéns, {vencedorInfo.vencedorNome}! 🏆
+          </Typography>
+        </Paper>
+      ) : (
+        <PremioBanner />
+      )}
 
       {renderContent()}
     </div>
