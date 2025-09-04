@@ -187,13 +187,24 @@ function Quiz() {
           <Typography variant="body1" fontWeight="bold">{index + 1}. {pergunta.pergunta}</Typography>
           <RadioGroup onChange={(e) => handleRespostaChange(pergunta.id, e.target.value)}>
             {pergunta.opcoes.map((opcao, i) => (
-              <FormControlLabel key={i} value={opcao} control={<Radio />} label={opcao} />
+              <FormControlLabel
+                key={i}
+                value={opcao}
+                control={<Radio />}
+                label={<Typography sx={{ wordBreak: 'break-word' }}>{opcao}</Typography>}
+              />
             ))}
           </RadioGroup>
         </Paper>
       ))}
 
-      <Button variant="contained" size="large" onClick={handleSubmit} sx={{ mt: 3 }} disabled={Object.keys(respostas).length < perguntas.length}>
+      <Button
+        variant="contained"
+        size="large"
+        onClick={handleSubmit}
+        sx={{ mt: 3 }}
+        disabled={Object.keys(respostas).length < perguntas.length}
+      >
         Finalizar Quiz
       </Button>
     </Container>
@@ -201,4 +212,3 @@ function Quiz() {
 }
 
 export default Quiz;
-
