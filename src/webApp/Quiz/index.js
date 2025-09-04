@@ -178,13 +178,17 @@ function Quiz() {
 
   // Tela principal do Quiz
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, pb: 4 }}>
       <Typography variant="h4">{curso.nome}</Typography>
-      <Typography variant="h6" color="text.secondary" gutterBottom>Responda às perguntas abaixo:</Typography>
+      <Typography variant="h6" color="text.secondary" gutterBottom>
+        Responda às perguntas abaixo:
+      </Typography>
 
       {perguntas.map((pergunta, index) => (
         <Paper key={pergunta.id} sx={{ p: 3, my: 2 }}>
-          <Typography variant="body1" fontWeight="bold">{index + 1}. {pergunta.pergunta}</Typography>
+          <Typography variant="body1" fontWeight="bold">
+            {index + 1}. {pergunta.pergunta}
+          </Typography>
           <RadioGroup onChange={(e) => handleRespostaChange(pergunta.id, e.target.value)}>
             {pergunta.opcoes.map((opcao, i) => (
               <FormControlLabel
@@ -196,22 +200,37 @@ function Quiz() {
                     {opcao}
                   </Typography>
                 }
-                sx={{ alignItems: 'flex-start' }}
+                sx={{ alignItems: 'flex-start', mt: 1 }}
               />
             ))}
           </RadioGroup>
         </Paper>
       ))}
 
-      <Button
-        variant="contained"
-        size="large"
-        onClick={handleSubmit}
-        sx={{ mt: 3 }}
-        disabled={Object.keys(respostas).length < perguntas.length}
-      >
-        Finalizar Quiz
-      </Button>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        mt: 4, 
+        mb: 4,
+        position: 'sticky',
+        bottom: 20,
+        zIndex: 1000
+      }}>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={handleSubmit}
+          sx={{ 
+            py: 1.5, 
+            px: 4, 
+            fontSize: '1.1rem',
+            boxShadow: 3
+          }}
+          disabled={Object.keys(respostas).length < perguntas.length}
+        >
+          Finalizar Quiz
+        </Button>
+      </Box>
     </Container>
   );
 }
